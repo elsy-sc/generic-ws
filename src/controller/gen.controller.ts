@@ -43,8 +43,8 @@ export class GenController {
                 case 'update':
                     return ResponseUtils.success(await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere), 'Updated successfully', 200);
                 case 'delete':
-                    await this.handleDelete(className, tableName, body.data, body.afterWhere);
-                    return ResponseUtils.success(null, 'Deleted successfully', 200);
+                    const deletedCount = await this.handleDelete(className, tableName, body.data, body.afterWhere);
+                    return ResponseUtils.success({ deletedCount }, 'Deleted successfully', 200);
                 default:
                     return ResponseUtils.error(`Unsupported action: ${action}`, 'Bad Request', 400);
             }
@@ -133,18 +133,17 @@ export class GenController {
         }
     }
 
-    private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<void> {
-        if (!data) {
-            throw new Error('Data is required for delete action');
+    private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<number> {
+        if (!data || Object.keys(data).length === 0) {
+            throw new Error('At least one property is required for delete action');
         }
-
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
             const instance = new ClassConstructor();
-            
             ReflectUtil.setPropertyValues(instance, data);
 
-            await GenModel.delete(instance, tableName, afterWhere);
+            const deletedCount = await GenModel.delete(instance, tableName, afterWhere);
+            return deletedCount;
         } catch (error) {
             throw new Error(`Failed to delete ${className}: ${error.message}`);
         }

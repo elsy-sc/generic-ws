@@ -169,7 +169,7 @@ export class GenModel {
         return result.rows[0];
     }
 
-    static async delete(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<void> {
+    static async delete(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<number> {
         if (!tableName) {
             throw new Error('Table name is not set');
         }
@@ -177,6 +177,10 @@ export class GenModel {
         const properties = ReflectUtil.getPropertyValues(object);
         const keys = Object.keys(properties);
         const values = Object.values(properties);
+
+        if (keys.length === 0) {
+            throw new Error('At least one property is required for delete action');
+        }
 
         let query = `DELETE FROM ${tableName}`;
         if (keys.length > 0) {
@@ -189,7 +193,8 @@ export class GenModel {
             query += ` ${afterWhere}`;
         }
 
-        await queryExecutor.query(query, values);
+        const result = await queryExecutor.query(query + ' RETURNING *', values);
+        return result.rowCount;
     }
 
     async create(client?: any): Promise<Object> {
