@@ -50,14 +50,16 @@ export class ReflectUtil {
     static setPropertyValues(instance: any, values: Record<string, any>): void {
         const properties = ReflectUtil.getPropertyNames(instance);
         for (const prop of properties) {
-            const matchingKey = Object.keys(values).find(key => 
-                key.toLowerCase() === prop.toLowerCase()
-            );            
-            if (matchingKey) {
-                const originalProp = Object.getOwnPropertyNames(instance).find(p => 
-                    p.toLowerCase() === prop.toLowerCase()
-                ) || prop;
-                instance[originalProp] = values[matchingKey];
+            if (values) {
+                const matchingKey = Object.keys(values).find(key => 
+                    key.toLowerCase() === prop.toLowerCase()
+                );            
+                if (matchingKey) {
+                    const originalProp = Object.getOwnPropertyNames(instance).find(p => 
+                        p.toLowerCase() === prop.toLowerCase()
+                    ) || prop;
+                    instance[originalProp] = values[matchingKey];
+                }
             }
         }
     }
