@@ -10,6 +10,11 @@ interface GenericRequest {
     afterWhere?: string;
 }
 
+interface PaginationQuery {
+    page?: number;
+    limit?: number;
+}
+
 @Controller('api/gen')
 export class GenController {
     
@@ -18,14 +23,23 @@ export class GenController {
         @Query('action') action: string,
         @Query('className') className: string,
         @Query('tableName') tableName: string,
-        @Body() body: GenericRequest
+        @Body() body: GenericRequest,
+        @Query('page') page?: number | string,
+        @Query('limit') limit?: number | string,
     ): Promise<any> {        
         try {
+            const parsedPage = page !== undefined ? Number(page) : undefined;
+            const parsedLimit = limit !== undefined ? Number(limit) : undefined;
+
             switch (action?.toLowerCase()) {
                 case 'create':
                     return ResponseUtils.success(await this.handleCreate(className, tableName, body.data), 'Created successfully', 201);
                 case 'read':
-                    return ResponseUtils.success(await this.handleRead(className, tableName, body.data, body.afterWhere), 'Read successfully', 200);
+                    return ResponseUtils.success(
+                        await this.handleRead(className, tableName, body.data, body.afterWhere, { page: parsedPage, limit: parsedLimit }),
+                        'Read successfully',
+                        200
+                    );
                 case 'update':
                     return ResponseUtils.success(await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere), 'Updated successfully', 200);
                 case 'delete':
@@ -55,14 +69,45 @@ export class GenController {
         }
     }
 
-    private async handleRead(className: string, tableName: string, data: any, afterWhere?: string): Promise<any[]> {
+    private async handleRead(
+        className: string,
+        tableName: string,
+        data: any,
+        afterWhere?: string,
+        pagination?: PaginationQuery
+    ): Promise<any> {
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
             const instance = new ClassConstructor();
-
             ReflectUtil.setPropertyValues(instance, data);
 
-            return await GenModel.read(instance, tableName, afterWhere);
+            let results;
+            let total = 0;
+            let page = 1;
+            let limit = 10;
+            let totalPages = 1;
+
+            if (pagination && pagination.page && pagination.limit) {
+                page = pagination.page > 0 ? pagination.page : 1;
+                limit = pagination.limit > 0 ? pagination.limit : 10;
+                const offset = (page - 1) * limit;
+                total = await GenModel.count(instance, tableName, afterWhere);
+                results = await GenModel.read(instance, tableName, afterWhere, undefined, limit, offset);
+                totalPages = Math.ceil(total / limit);
+            } else {
+                results = await GenModel.read(instance, tableName, afterWhere);
+                total = results.length;
+            }
+
+            return {
+                results,
+                pagination: {
+                    total,
+                    page: pagination?.page ?? 1,
+                    limit: pagination?.limit ?? total,
+                    totalPages: pagination && pagination.page && pagination.limit ? totalPages : 1
+                }
+            };
         } catch (error) {
             throw new Error(`Failed to read ${className}: ${error.message}`);
         }

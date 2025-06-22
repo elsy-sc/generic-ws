@@ -82,7 +82,14 @@ export class GenModel {
         return result.rows[0];
     }
 
-    static async read(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<Object[]> {
+    static async read(
+        object: Object,
+        tableName: string,
+        afterWhere?: string,
+        client?: any,
+        limit?: number,
+        offset?: number
+    ): Promise<Object[]> {
         if (!tableName) {
             throw new Error('Table name is not set');
         }
@@ -101,9 +108,34 @@ export class GenModel {
         } else if (afterWhere) {
             query += ` ${afterWhere}`;
         }
-
+        if (typeof limit === 'number' && typeof offset === 'number' && limit > 0 && offset >= 0) {
+            query += ` LIMIT ${limit} OFFSET ${offset}`;
+        }
         const result = await queryExecutor.query(query, values);
         return result.rows;
+    }
+
+    static async count(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<number> {
+        if (!tableName) {
+            throw new Error('Table name is not set');
+        }
+        const queryExecutor = client || DatabaseUtil.getPool();
+        const properties = ReflectUtil.getPropertyValues(object);
+        const keys = Object.keys(properties);
+        const values = Object.values(properties);
+
+        let query = `SELECT COUNT(*) as total FROM ${tableName}`;
+        if (keys.length > 0) {
+            const conditions = keys.map((key, index) => `${key} = $${index + 1}`).join(' AND ');
+            query += ` WHERE ${conditions}`;
+            if (afterWhere) {
+                query += ` ${afterWhere}`;
+            }
+        } else if (afterWhere) {
+            query += ` ${afterWhere}`;
+        }
+        const result = await queryExecutor.query(query, values);
+        return parseInt(result.rows[0].total, 10);
     }
 
     static async update(objectToUpdate: Object, objectToUpdateWith: Object, tableName: string, afterWhere?: string, client?: any): Promise<Object> {
