@@ -84,12 +84,12 @@ export class GenController {
             let results;
             let total = 0;
             let page = 1;
-            let limit = 10;
+            let limit: number | undefined = undefined;
             let totalPages = 1;
 
-            if (pagination && pagination.page && pagination.limit) {
-                page = pagination.page > 0 ? pagination.page : 1;
-                limit = pagination.limit > 0 ? pagination.limit : 10;
+            if (pagination && pagination.limit && Number(pagination.limit) > 0) {
+                limit = Number(pagination.limit);
+                page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
                 const offset = (page - 1) * limit;
                 total = await GenModel.count(instance, tableName, afterWhere);
                 results = await GenModel.read(instance, tableName, afterWhere, undefined, limit, offset);
@@ -103,9 +103,9 @@ export class GenController {
                 results,
                 pagination: {
                     total,
-                    page: pagination?.page ?? 1,
-                    limit: pagination?.limit ?? total,
-                    totalPages: pagination && pagination.page && pagination.limit ? totalPages : 1
+                    page,
+                    limit: limit ?? total,
+                    totalPages: limit ? totalPages : 1
                 }
             };
         } catch (error) {
