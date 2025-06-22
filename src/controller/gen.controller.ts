@@ -2,19 +2,7 @@ import { Controller, Get, Post, Body, Param, Query, Logger } from '@nestjs/commo
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
-
-interface GenericRequest {
-    data?: any;
-    objectToUpdate?: any;
-    objectToUpdateWith?: any;
-    afterWhere?: string;
-}
-
-interface PaginationQuery {
-    page?: number;
-    limit?: number;
-}
-
+import { GenericRequest, PaginationQuery } from 'src/interface/gen.interface';
 @Controller('api/gen')
 export class GenController {
     
