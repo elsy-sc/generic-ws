@@ -1,54 +1,31 @@
 import { Logger } from "@nestjs/common";
 import { DatabaseUtil } from "src/util/database.util";
 import { ReflectUtil } from "src/util/reflect.util";
+import { getSequenceName, getSequencePrefix } from "src/annotation/sequence.annotation";
 
 export class GenModel {
     private tableName: string;
-    private sequenceName?: string;
-    private sequencePrefix?: string;
 
-    constructor(sequenceName?: string, sequencePrefix?: string, tableName?: string) {
-        if (tableName) {
-            this.tableName = tableName;
-        }
-        if (sequenceName) {
-            this.sequenceName = sequenceName;
-        }
-        if (sequencePrefix) {
-            this.sequencePrefix = sequencePrefix;
-        }
+    constructor(tableName?: string) {
+        if (tableName) this.tableName = tableName;
     }
 
-    setSequence(sequenceName: string, sequencePrefix?: string): void {
-        this.sequenceName = sequenceName;
-        this.sequencePrefix = sequencePrefix;
-    }
+    setTableName(tableName: string) { this.tableName = tableName; }
+    getTableName(): string { return this.tableName; }
 
     async getSeqNextVal(client?: any): Promise<number> {
-        if (!this.sequenceName) {
-            throw new Error('Sequence name is not set');
-        }
-        
+        const seqName = getSequenceName(this);
+        if (!seqName) throw new Error('Sequence name is not set');
         const queryExecutor = client || DatabaseUtil.getPool();
-        const query = `SELECT nextval('${this.sequenceName}') as next_value`;
-
+        const query = `SELECT nextval('${seqName}') as next_value`;
         const result = await queryExecutor.query(query);
         return result.rows[0].next_value;
     }
 
     async getId(client?: any): Promise<string> {
-        if (!this.sequencePrefix) {
-            throw new Error('Sequence prefix is not set');
-        }
-        return `${this.sequencePrefix}${await this.getSeqNextVal(client)}`;
-    }
-
-    setTableName(tableName: string): void {
-        this.tableName = tableName;
-    }
-
-    getTableName(): string {
-        return this.tableName;
+        const prefix = getSequencePrefix(this);
+        if (!prefix) throw new Error('Sequence prefix is not set');
+        return `${prefix}${await this.getSeqNextVal(client)}`;
     }
 
     static async create(object: Object, tableName: string, client?: any): Promise<Object> {
