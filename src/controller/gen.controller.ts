@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query, Logger } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
+import { ResponseUtils } from 'src/util/response.util';
 
 interface GenericRequest {
     data?: any;
@@ -22,22 +23,19 @@ export class GenController {
         try {
             switch (action?.toLowerCase()) {
                 case 'create':
-                    return await this.handleCreate(className, tableName, body.data);
-                
+                    return ResponseUtils.success(await this.handleCreate(className, tableName, body.data), 'Created successfully', 201);
                 case 'read':
-                    return await this.handleRead(className, tableName, body.data, body.afterWhere);
-                
+                    return ResponseUtils.success(await this.handleRead(className, tableName, body.data, body.afterWhere), 'Read successfully', 200);
                 case 'update':
-                    return await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere);
-                
+                    return ResponseUtils.success(await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere), 'Updated successfully', 200);
                 case 'delete':
-                    return await this.handleDelete(className, tableName, body.data, body.afterWhere);
-                
+                    await this.handleDelete(className, tableName, body.data, body.afterWhere);
+                    return ResponseUtils.success(null, 'Deleted successfully', 200);
                 default:
-                    throw new Error(`Unsupported action: ${action}`);
+                    return ResponseUtils.error(`Unsupported action: ${action}`, 'Bad Request', 400);
             }
         } catch (error) {
-            throw new Error(`Error processing ${action}: ${error.message}`);
+            return ResponseUtils.error(error.message, `Error processing ${action}`, 400);
         }
     }
 
