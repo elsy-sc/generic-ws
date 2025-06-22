@@ -1,3 +1,4 @@
+import { Logger } from "@nestjs/common";
 import { StringUtil } from "./string.util";
 
 export class ReflectUtil {
@@ -20,9 +21,10 @@ export class ReflectUtil {
     static getPropertyValues(instance: any): Record<string, any> {
         const properties = ReflectUtil.getPropertyNames(instance);
         const values: Record<string, any> = {};
+        const excludedProps = ['sequencename', 'sequenceprefix'];
         for (const prop of properties) {
             const value = instance[prop];
-            if (value !== undefined && value !== null) {
+            if (value !== undefined && value !== null && !excludedProps.includes(prop.toLowerCase())) {
                 values[prop.toLowerCase()] = value;
             }
         }
@@ -50,8 +52,7 @@ export class ReflectUtil {
         for (const prop of properties) {
             const matchingKey = Object.keys(values).find(key => 
                 key.toLowerCase() === prop.toLowerCase()
-            );
-            
+            );            
             if (matchingKey) {
                 const originalProp = Object.getOwnPropertyNames(instance).find(p => 
                     p.toLowerCase() === prop.toLowerCase()

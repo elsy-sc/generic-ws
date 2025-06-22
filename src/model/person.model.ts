@@ -8,6 +8,6 @@ export class Person extends GenModel{
     public phone: string;
 
     constructor() {
-        super()
+        super('user_seq', 'PERS');
     }
 }
