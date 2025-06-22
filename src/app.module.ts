@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GenController } from './controller/gen.controller';
+import { MetaController } from './controller/meta.controller';
 
 @Module({
   imports: [
@@ -9,7 +10,7 @@ import { GenController } from './controller/gen.controller';
       envFilePath: '.env',
     }),
   ],
-  controllers: [GenController],
+  controllers: [GenController, MetaController],
   providers: [],
 })
 export class AppModule {}
