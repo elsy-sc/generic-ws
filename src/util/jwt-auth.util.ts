@@ -1,0 +1,24 @@
+import { JwtService } from "@nestjs/jwt";
+import { DEFAULT_JWT_SECRET } from "./constante.util";
+
+export class JwtAuthUtil {
+    static generateToken(payload: any, jwtService: JwtService): string {
+        return jwtService.sign(payload);
+    }
+
+    static extractTokenFromHeader(authHeader: string): string {
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            throw new Error('No token provided');
+        }
+        return authHeader.split(' ')[1];
+    }
+
+    static verifyJwtToken(token: string, jwtService: JwtService): any {
+        try {
+            return jwtService.verify(token, { secret: process.env.JWT_SECRET || DEFAULT_JWT_SECRET });
+        } catch (error) {
+            throw new Error('Invalid token');
+        }
+    }
+
+}

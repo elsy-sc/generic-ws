@@ -1,11 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/annotation/jwt-auth.annotation';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { ResponseUtils } from 'src/util/response.util';
 import { TableUtil } from 'src/util/table.util';
 
 @Controller('api/meta')
+@UseGuards(JwtAuthGuard)
 export class MetaController {
-    @Get()
+    @Get('fields')
     async fields(
         @Query('className') className: string,
         @Query('tableName') tableName: string

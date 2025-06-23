@@ -1,10 +1,12 @@
-import { Controller, Post, Body, Query } from '@nestjs/common';
+import { Controller, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
 import { GenericRequest } from 'src/interface/request.interface';
+import { JwtAuthGuard } from 'src/annotation/jwt-auth.annotation';
 @Controller('api/gen')
+@UseGuards(JwtAuthGuard)
 export class GenController {
     
     @Post()
