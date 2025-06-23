@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
@@ -8,39 +8,72 @@ import { JwtAuthGuard } from 'src/annotation/jwt-auth.annotation';
 @Controller('api/gen')
 @UseGuards(JwtAuthGuard)
 export class GenController {
-    
     @Post()
-    async handleAction(
+    async postAction(
         @Query('action') action: string,
         @Query('className') className: string,
         @Query('tableName') tableName: string,
         @Body() body: GenericRequest,
         @Query('page') page?: number | string,
-        @Query('limit') limit?: number | string,
-    ): Promise<any> {        
-        try {
-            const parsedPage = page !== undefined ? Number(page) : undefined;
-            const parsedLimit = limit !== undefined ? Number(limit) : undefined;
-
-            switch (action?.toLowerCase()) {
-                case 'create':
-                    return ResponseUtils.success(await this.handleCreate(className, tableName, body.data), 'Created successfully', 201);
-                case 'read':
-                    return ResponseUtils.success(
-                        await this.handleRead(className, tableName, body.data, body.afterWhere, { page: parsedPage, limit: parsedLimit }),
-                        'Read successfully',
-                        200
-                    );
-                case 'update':
-                    return ResponseUtils.success(await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere), 'Updated successfully', 200);
-                case 'delete':
-                    const deletedCount = await this.handleDelete(className, tableName, body.data, body.afterWhere);
-                    return ResponseUtils.success({ deletedCount }, 'Deleted successfully', 200);
-                default:
-                    return ResponseUtils.error(`Unsupported action: ${action}`, 'Bad Request', 400);
+        @Query('limit') limit?: number | string
+    ): Promise<any> {
+        switch (action?.toLowerCase()) {
+            case 'create':
+                return ResponseUtils.success(await this.handleCreate(className, tableName, body.data), 'Created successfully', 201);
+            case 'read': {
+                const data = body?.data ?? {};
+                const afterWhere = body?.afterWhere;
+                const parsedPage = page !== undefined ? Number(page) : undefined;
+                const parsedLimit = limit !== undefined ? Number(limit) : undefined;
+                return ResponseUtils.success(
+                    await this.handleRead(className, tableName, data, afterWhere, { page: parsedPage, limit: parsedLimit }),
+                    'Read successfully',
+                    200
+                );
             }
-        } catch (error) {
-            return ResponseUtils.error(error.message, `Error processing ${action}`, 400);
+            default:
+                throw new BadRequestException('POST: action not implemented');
+        }
+    }
+
+    @Get()
+    async getAction(): Promise<any> {
+        throw new BadRequestException('GET: action not implemented');
+    }
+
+    @Put()
+    async putAction(
+        @Query('action') action: string,
+        @Query('className') className: string,
+        @Query('tableName') tableName: string,
+        @Body() body: GenericRequest
+    ): Promise<any> {
+        switch (action?.toLowerCase()) {
+            case 'update':
+                return ResponseUtils.success(
+                    await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere),
+                    'Updated successfully',
+                    200
+                );
+            default:
+                throw new BadRequestException('PUT: action not implemented');
+        }
+    }
+
+    @Delete()
+    async deleteAction(
+        @Query('action') action: string,
+        @Query('className') className: string,
+        @Query('tableName') tableName: string,
+        @Body() body: GenericRequest
+    ): Promise<any> {
+        switch (action?.toLowerCase()) {
+            case 'delete': {
+                const deletedCount = await this.handleDelete(className, tableName, body.data, body.afterWhere);
+                return ResponseUtils.success({ deletedCount }, 'Deleted successfully', 200);
+            }
+            default:
+                throw new BadRequestException('DELETE: action not implemented');
         }
     }
 
