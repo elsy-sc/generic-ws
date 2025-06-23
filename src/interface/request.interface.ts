@@ -4,8 +4,3 @@ export interface GenericRequest {
     objectToUpdateWith?: any;
     afterWhere?: string;
 }
-
-export interface PaginationQuery {
-    page?: number;
-    limit?: number;
-}

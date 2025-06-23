@@ -1,4 +1,3 @@
-import { Logger } from "@nestjs/common";
 import { DatabaseUtil } from "src/util/database.util";
 import { ReflectUtil } from "src/util/reflect.util";
 import { getSequenceName, getSequencePrefix } from "src/annotation/sequence.annotation";

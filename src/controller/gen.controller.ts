@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Query, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Query } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
-import { GenericRequest, PaginationQuery } from 'src/interface/gen.interface';
+import { PaginationQuery } from 'src/interface/pagination.interface';
+import { GenericRequest } from 'src/interface/request.interface';
 @Controller('api/gen')
 export class GenController {
     
