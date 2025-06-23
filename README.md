@@ -25,15 +25,10 @@ npm install
 
 ### Configuration
 
-Create a `.env` file in the root directory with your database settings:
+Copy the `.env.example` file to `.env` and update the database connection settings:
 
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=your_db
-DB_USER=your_user
-DB_PASSWORD=your_password
-PORT=3000
+```sh
+cp .env.example .env
 ```
 
 ### Running the Server
