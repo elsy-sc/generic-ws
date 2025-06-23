@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
@@ -46,7 +46,7 @@ export class GenController {
 
     private async handleCreate(className: string, tableName: string, data: any): Promise<any> {
         if (!data) {
-            throw new Error('Data is required for create action');
+            throw new BadRequestException('Data is required for create action');
         }
 
         try {
@@ -56,7 +56,7 @@ export class GenController {
 
             return await GenModel.create(instance, tableName);
         } catch (error) {
-            throw new Error(`Failed to create ${className}: ${error.message}`);
+            throw new BadRequestException(`Failed to create ${className}: ${error.message}`);
         }
     }
 
@@ -100,13 +100,13 @@ export class GenController {
                 }
             };
         } catch (error) {
-            throw new Error(`Failed to read ${className}: ${error.message}`);
+            throw new BadRequestException(`Failed to read ${className}: ${error.message}`);
         }
     }
 
     private async handleUpdate(className: string, tableName: string, objectToUpdate: any, objectToUpdateWith: any, afterWhere?: string): Promise<any> {
         if (!objectToUpdate || !objectToUpdateWith) {
-            throw new Error('objectToUpdate and objectToUpdateWith are required for update action');
+            throw new BadRequestException('objectToUpdate and objectToUpdateWith are required for update action');
         }
 
         try {
@@ -120,13 +120,13 @@ export class GenController {
 
             return await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
         } catch (error) {
-            throw new Error(`Failed to update ${className}: ${error.message}`);
+            throw new BadRequestException(`Failed to update ${className}: ${error.message}`);
         }
     }
 
     private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<number> {
         if (!data || Object.keys(data).length === 0) {
-            throw new Error('At least one property is required for delete action');
+            throw new BadRequestException('At least one property is required for delete action');
         }
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
@@ -136,7 +136,7 @@ export class GenController {
             const deletedCount = await GenModel.delete(instance, tableName, afterWhere);
             return deletedCount;
         } catch (error) {
-            throw new Error(`Failed to delete ${className}: ${error.message}`);
+            throw new BadRequestException(`Failed to delete ${className}: ${error.message}`);
         }
     }
 }

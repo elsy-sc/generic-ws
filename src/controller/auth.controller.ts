@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthUtil } from 'src/util/jwt-auth.util';
 import { ResponseUtils } from 'src/util/response.util';
@@ -11,7 +11,7 @@ export class AuthController {
   async generateToken(@Body() payload: any) {
     try {
         if (!payload || typeof payload !== 'object') {
-            throw new Error('Invalid payload for token generation');
+            throw new BadRequestException('Invalid payload for token generation');
         }
         const token = JwtAuthUtil.generateToken(payload, this.jwtService);
         return ResponseUtils.success({ token }, 'Token generated', 200);

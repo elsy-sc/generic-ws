@@ -1,6 +1,7 @@
 import { DatabaseUtil } from "src/util/database.util";
 import { ReflectUtil } from "src/util/reflect.util";
 import { getSequenceName, getSequencePrefix } from "src/annotation/sequence.annotation";
+import { BadRequestException } from '@nestjs/common';
 
 export class GenModel {
     private tableName: string;
@@ -14,7 +15,7 @@ export class GenModel {
 
     async getSeqNextVal(client?: any): Promise<number> {
         const seqName = getSequenceName(this);
-        if (!seqName) throw new Error('Sequence name is not set');
+        if (!seqName) throw new BadRequestException('Sequence name is not set');
         const queryExecutor = client || DatabaseUtil.getPool();
         const query = `SELECT nextval('${seqName}') as next_value`;
         const result = await queryExecutor.query(query);
@@ -23,13 +24,13 @@ export class GenModel {
 
     async getId(client?: any): Promise<string> {
         const prefix = getSequencePrefix(this);
-        if (!prefix) throw new Error('Sequence prefix is not set');
+        if (!prefix) throw new BadRequestException('Sequence prefix is not set');
         return `${prefix}${await this.getSeqNextVal(client)}`;
     }
 
     static async create(object: Object, tableName: string, client?: any): Promise<Object> {
         if (!tableName) {
-            throw new Error('Table name is not set');
+            throw new BadRequestException('Table name is not set');
         }
         const queryExecutor = client || DatabaseUtil.getPool();
     
@@ -45,7 +46,7 @@ export class GenModel {
         const properties = ReflectUtil.getPropertyValues(object);
 
         if (Object.keys(properties).length === 0) {
-            throw new Error('No properties found');
+            throw new BadRequestException('No properties found');
         }
 
         const columns = Object.keys(properties).join(', ');
@@ -67,7 +68,7 @@ export class GenModel {
         offset?: number
     ): Promise<Object[]> {
         if (!tableName) {
-            throw new Error('Table name is not set');
+            throw new BadRequestException('Table name is not set');
         }
         const queryExecutor = client || DatabaseUtil.getPool();
         const properties = ReflectUtil.getPropertyValues(object);
@@ -93,7 +94,7 @@ export class GenModel {
 
     static async count(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<number> {
         if (!tableName) {
-            throw new Error('Table name is not set');
+            throw new BadRequestException('Table name is not set');
         }
         const queryExecutor = client || DatabaseUtil.getPool();
         const properties = ReflectUtil.getPropertyValues(object);
@@ -116,18 +117,18 @@ export class GenModel {
 
     static async update(objectToUpdate: Object, objectToUpdateWith: Object, tableName: string, afterWhere?: string, client?: any): Promise<Object> {
         if (!tableName) {
-            throw new Error('Table name is not set');
+            throw new BadRequestException('Table name is not set');
         }
         const queryExecutor = client || DatabaseUtil.getPool();
         const propertiesToUpdate = ReflectUtil.getPropertyValues(objectToUpdateWith);
         const conditions = ReflectUtil.getPropertyValues(objectToUpdate);
 
         if (!propertiesToUpdate || Object.keys(propertiesToUpdate).length === 0) {
-            throw new Error('No properties to update');
+            throw new BadRequestException('No properties to update');
         }
 
         if (!conditions || Object.keys(conditions).length === 0) {
-            throw new Error('No conditions provided for update');
+            throw new BadRequestException('No conditions provided for update');
         }
 
         const setClause = Object.keys(propertiesToUpdate)
@@ -147,7 +148,7 @@ export class GenModel {
 
     static async delete(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<number> {
         if (!tableName) {
-            throw new Error('Table name is not set');
+            throw new BadRequestException('Table name is not set');
         }
         const queryExecutor = client || DatabaseUtil.getPool();
         const properties = ReflectUtil.getPropertyValues(object);
@@ -155,7 +156,7 @@ export class GenModel {
         const values = Object.values(properties);
 
         if (keys.length === 0) {
-            throw new Error('At least one property is required for delete action');
+            throw new BadRequestException('At least one property is required for delete action');
         }
 
         let query = `DELETE FROM ${tableName}`;
@@ -174,14 +175,14 @@ export class GenModel {
     }
 
     static async executeNotReturnedQuery(query: string, client: any): Promise<void> {
-        if (!query) throw new Error('Query is required');
+        if (!query) throw new BadRequestException('Query is required');
         const queryExecutor = client || DatabaseUtil.getPool();
         await queryExecutor.query(query);
     }
 
     static async executeReturnedQuery(query: string, instance: Object, client?: any): Promise<Object[]> {
-        if (!query) throw new Error('Query is required');
-        if (!instance) throw new Error('Instance is required');
+        if (!query) throw new BadRequestException('Query is required');
+        if (!instance) throw new BadRequestException('Instance is required');
         const queryExecutor = client || DatabaseUtil.getPool();
         const result = await queryExecutor.query(query);
         const ClassConstructor = Object.getPrototypeOf(instance).constructor as { new (): any };

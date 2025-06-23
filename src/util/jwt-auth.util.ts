@@ -1,5 +1,6 @@
 import { JwtService } from "@nestjs/jwt";
 import { DEFAULT_JWT_EXPIRATION, DEFAULT_JWT_SECRET } from "./constante.util";
+import { UnauthorizedException } from '@nestjs/common';
 
 export class JwtAuthUtil {
     static generateToken(payload: any, jwtService: JwtService, expiresIn: string = process.env.JWT_EXPIRATION || DEFAULT_JWT_EXPIRATION): string {
@@ -8,7 +9,7 @@ export class JwtAuthUtil {
 
     static extractTokenFromHeader(authHeader: string): string {
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new Error('No token provided');
+            throw new UnauthorizedException('No token provided');
         }
         return authHeader.split(' ')[1];
     }
@@ -17,7 +18,7 @@ export class JwtAuthUtil {
         try {
             return jwtService.verify(token, { secret: process.env.JWT_SECRET || DEFAULT_JWT_SECRET });
         } catch (error) {
-            throw new Error('Invalid token');
+            throw new UnauthorizedException('Invalid token');
         }
     }
 

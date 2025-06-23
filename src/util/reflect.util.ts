@@ -1,4 +1,5 @@
 import { StringUtil } from "./string.util";
+import { BadRequestException } from '@nestjs/common';
 
 export class ReflectUtil {
 
@@ -38,11 +39,11 @@ export class ReflectUtil {
         const exportName = StringUtil.getClassName(modulePath);
         
         if (!module[exportName]) {
-            throw new Error(`Export ${exportName} not found in module ${modulePath}`);
+            throw new BadRequestException(`Export ${exportName} not found in module ${modulePath}`);
         }
         return module[exportName];
         } catch (error) {
-            throw new Error(`Class ${className} not found: ${error.message}`);
+            throw new BadRequestException(`Class ${className} not found: ${error.message}`);
         }
     }
 
