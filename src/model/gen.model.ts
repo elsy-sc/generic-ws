@@ -173,6 +173,25 @@ export class GenModel {
         return result.rowCount;
     }
 
+    static async executeNotReturnedQuery(query: string, client: any): Promise<void> {
+        if (!query) throw new Error('Query is required');
+        const queryExecutor = client || DatabaseUtil.getPool();
+        await queryExecutor.query(query);
+    }
+
+    static async executeReturnedQuery(query: string, instance: Object, client?: any): Promise<Object[]> {
+        if (!query) throw new Error('Query is required');
+        if (!instance) throw new Error('Instance is required');
+        const queryExecutor = client || DatabaseUtil.getPool();
+        const result = await queryExecutor.query(query);
+        const ClassConstructor = Object.getPrototypeOf(instance).constructor as { new (): any };
+        return result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row));
+    }
+
+    async executeReturnedQuery (query: string, client?: any): Promise<Object[]> {
+        return await GenModel.executeReturnedQuery(query, this, client);
+    }
+
     async create(client?: any): Promise<Object> {
         return await GenModel.create(this, this.tableName, client);
     }
