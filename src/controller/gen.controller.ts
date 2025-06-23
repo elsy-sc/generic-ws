@@ -105,7 +105,7 @@ export class GenController {
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
 
-            let results;
+            let results: any[];
             let total = 0;
             let page = 1;
             let limit: number | undefined = undefined;

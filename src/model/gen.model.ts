@@ -80,10 +80,10 @@ export class GenModel {
             const conditions = keys.map((key, index) => `${key} = $${index + 1}`).join(' AND ');
             query += ` WHERE ${conditions}`;
             if (afterWhere) {
-                query += ` ${afterWhere}`;
+                query += ` AND ${afterWhere}`;
             }
         } else if (afterWhere) {
-            query += ` ${afterWhere}`;
+            query += ` WHERE ${afterWhere}`;
         }
         if (typeof limit === 'number' && typeof offset === 'number' && limit > 0 && offset >= 0) {
             query += ` LIMIT ${limit} OFFSET ${offset}`;
@@ -106,10 +106,10 @@ export class GenModel {
             const conditions = keys.map((key, index) => `${key} = $${index + 1}`).join(' AND ');
             query += ` WHERE ${conditions}`;
             if (afterWhere) {
-                query += ` ${afterWhere}`;
+                query += ` AND ${afterWhere}`;
             }
         } else if (afterWhere) {
-            query += ` ${afterWhere}`;
+            query += ` WHERE ${afterWhere}`;
         }
         const result = await queryExecutor.query(query, values);
         return parseInt(result.rows[0].total, 10);
@@ -140,8 +140,7 @@ export class GenModel {
 
         const values = [...Object.values(propertiesToUpdate), ...Object.values(conditions)];
 
-        const query = `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}${afterWhere ? ' ' + afterWhere : ''} RETURNING *`;
-
+        const query = `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}${afterWhere ? ' AND ' + afterWhere : ''} RETURNING *`;
         const result = await queryExecutor.query(query, values);
         return result.rows[0];
     }
@@ -164,10 +163,10 @@ export class GenModel {
             const conditions = keys.map((key, index) => `${key} = $${index + 1}`).join(' AND ');
             query += ` WHERE ${conditions}`;
             if (afterWhere) {
-                query += ` ${afterWhere}`;
+                query += ` AND ${afterWhere}`;
             }
         } else if (afterWhere) {
-            query += ` ${afterWhere}`;
+            query += ` WHERE ${afterWhere}`;
         }
 
         const result = await queryExecutor.query(query + ' RETURNING *', values);
