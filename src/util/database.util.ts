@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { DEFAULT_DB_HOST, DEFAULT_DB_PORT, DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASSWORD } from './constante.util';
 
 export class DatabaseUtil {
     private static instance: DatabaseUtil;
@@ -20,13 +21,11 @@ export class DatabaseUtil {
     static getPool(): Pool {
         if (!DatabaseUtil.pool) {
             DatabaseUtil.pool = new Pool({
-                host: process.env.DB_HOST || 'localhost',
-                port: parseInt(process.env.DB_PORT || '5432'),
-                database: process.env.DB_NAME || 'postgres',
-                user: process.env.DB_USER || 'postgres',
-                password: process.env.DB_PASSWORD || 'password',
-                max: 10,
-                idleTimeoutMillis: 30000,
+                host: process.env.DB_HOST || DEFAULT_DB_HOST,
+                port: parseInt(process.env.DB_PORT || DEFAULT_DB_PORT.toString()),
+                database: process.env.DB_NAME || DEFAULT_DB_NAME,
+                user: process.env.DB_USER || DEFAULT_DB_USER,
+                password: process.env.DB_PASSWORD || DEFAULT_DB_PASSWORD,
             });
         }
         return DatabaseUtil.pool;
