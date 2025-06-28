@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
