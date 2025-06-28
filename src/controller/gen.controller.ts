@@ -120,9 +120,6 @@ export class GenController {
             const hasInstanceRead = typeof instance.read === 'function';
             const hasInstanceCount = typeof instance.count === 'function';
 
-            Logger.log('instance', instance);
-
-
             if (pagination && pagination.limit && Number(pagination.limit) > 0) {
                 limit = Number(pagination.limit);
                 page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
