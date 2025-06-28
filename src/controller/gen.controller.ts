@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException, Logger } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
@@ -86,8 +86,13 @@ export class GenController {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
-
-            return await GenModel.create(instance, tableName);
+            ReflectUtil.setPropertyValues(instance, { tablename: tableName });
+            const hasInstanceCreate = typeof instance.create === 'function';
+            if (hasInstanceCreate) {
+                return await instance.create();
+            } else {
+                return await GenModel.create(instance, tableName);
+            }
         } catch (error) {
             throw new BadRequestException(`Failed to create ${className}: ${error.message}`);
         }
@@ -104,6 +109,7 @@ export class GenController {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
+            ReflectUtil.setPropertyValues(instance, { tablename: tableName });
 
             let results: any[];
             let total = 0;
@@ -111,15 +117,33 @@ export class GenController {
             let limit: number | undefined = undefined;
             let totalPages = 1;
 
+            const hasInstanceRead = typeof instance.read === 'function';
+            const hasInstanceCount = typeof instance.count === 'function';
+
+            Logger.log('instance', instance);
+
+
             if (pagination && pagination.limit && Number(pagination.limit) > 0) {
                 limit = Number(pagination.limit);
                 page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
                 const offset = (page - 1) * limit;
-                total = await GenModel.count(instance, tableName, afterWhere);
-                results = await GenModel.read(instance, tableName, afterWhere, undefined, limit, offset);
+                if (hasInstanceCount) {
+                    total = await instance.count(afterWhere, undefined);
+                } else {
+                    total = await GenModel.count(instance, tableName, afterWhere);
+                }
+                if (hasInstanceRead) {
+                    results = await instance.read(afterWhere, undefined, limit, offset);
+                } else {
+                    results = await GenModel.read(instance, tableName, afterWhere, undefined, limit, offset);
+                }
                 totalPages = Math.ceil(total / limit);
             } else {
-                results = await GenModel.read(instance, tableName, afterWhere);
+                if (hasInstanceRead) {
+                    results = await instance.read(afterWhere);
+                } else {
+                    results = await GenModel.read(instance, tableName, afterWhere);
+                }
                 total = results.length;
             }
 
@@ -147,11 +171,17 @@ export class GenController {
             
             const conditionInstance = new ClassConstructor();
             ReflectUtil.setPropertyValues(conditionInstance, objectToUpdate);
+            ReflectUtil.setPropertyValues(conditionInstance, { tablename: tableName });
 
             const updateInstance = new ClassConstructor();
             ReflectUtil.setPropertyValues(updateInstance, objectToUpdateWith);
 
-            return await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
+            const hasInstanceUpdate = typeof conditionInstance.update === 'function';
+            if (hasInstanceUpdate) {
+                return await conditionInstance.update(updateInstance, afterWhere);
+            } else {
+                return await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
+            }
         } catch (error) {
             throw new BadRequestException(`Failed to update ${className}: ${error.message}`);
         }
@@ -165,9 +195,14 @@ export class GenController {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
+            ReflectUtil.setPropertyValues(instance, { tablename: tableName });
 
-            const deletedCount = await GenModel.delete(instance, tableName, afterWhere);
-            return deletedCount;
+            const hasInstanceDelete = typeof instance.delete === 'function';
+            if (hasInstanceDelete) {
+                return await instance.delete(afterWhere);
+            } else {
+                return await GenModel.delete(instance, tableName, afterWhere);
+            }
         } catch (error) {
             throw new BadRequestException(`Failed to delete ${className}: ${error.message}`);
         }

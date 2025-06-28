@@ -196,8 +196,8 @@ export class GenModel {
         return await GenModel.create(this, this.tableName, client);
     }
 
-    async read(afterWhere?: string, client?: any): Promise<Object[]> {
-        return await GenModel.read(this, this.tableName, afterWhere, client);
+    async read(afterWhere?: string, client?: any, limit?: number, offset?: number): Promise<Object[]> {
+        return await GenModel.read(this, this.tableName, afterWhere, client, limit, offset);
     }
 
     async update(objectToUpdateWith: Object, afterWhere?: string, client?: any): Promise<Object> {

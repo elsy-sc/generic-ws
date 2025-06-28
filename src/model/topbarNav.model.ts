@@ -11,4 +11,12 @@ export class TopbarNav extends NavItem{
         super();
         this.setTableName('topbarnav');
     }
+
+    async read(afterWhere?: string, client?: any, limit?: number, offset?: number): Promise<Object[]> {
+        const items = await super.read(afterWhere, client, limit, offset) as TopbarNav[];
+        items.forEach(item => {
+            item.children = items.filter(child => child.parent_id === item.id);
+        });
+        return items;
+    }
 }
