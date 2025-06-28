@@ -21,7 +21,7 @@ export class ReflectUtil {
     static getPropertyValues(instance: any): Record<string, any> {
         const properties = ReflectUtil.getPropertyNames(instance);
         const values: Record<string, any> = {};
-        const excludedProps = ['sequencename', 'sequenceprefix'];
+        const excludedProps = ['sequencename', 'sequenceprefix', 'tablename'];
         for (const prop of properties) {
             const value = instance[prop];
             if (value !== undefined && value !== null && !excludedProps.includes(prop.toLowerCase())) {
@@ -33,7 +33,7 @@ export class ReflectUtil {
 
     static async getClass(className: string): Promise<any> {
     try {
-        const modulePath = `../${className.toLowerCase()}`;
+        const modulePath = `../${className}`;
         const module = await import(modulePath);
         
         const exportName = StringUtil.getClassName(modulePath);

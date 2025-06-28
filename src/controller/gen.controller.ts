@@ -83,7 +83,7 @@ export class GenController {
         }
 
         try {
-            const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
+            const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
 
@@ -101,7 +101,7 @@ export class GenController {
         pagination?: PaginationQuery
     ): Promise<any> {
         try {
-            const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
+            const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
 
@@ -143,7 +143,7 @@ export class GenController {
         }
 
         try {
-            const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
+            const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             
             const conditionInstance = new ClassConstructor();
             ReflectUtil.setPropertyValues(conditionInstance, objectToUpdate);
@@ -162,7 +162,7 @@ export class GenController {
             throw new BadRequestException('At least one property is required for delete action');
         }
         try {
-            const ClassConstructor = await ReflectUtil.getClass(`${className.toLowerCase()}`);
+            const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             ReflectUtil.setPropertyValues(instance, data);
 
