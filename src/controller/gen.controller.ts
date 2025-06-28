@@ -118,17 +118,12 @@ export class GenController {
             let totalPages = 1;
 
             const hasInstanceRead = typeof instance.read === 'function';
-            const hasInstanceCount = typeof instance.count === 'function';
 
             if (pagination && pagination.limit && Number(pagination.limit) > 0) {
                 limit = Number(pagination.limit);
                 page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
                 const offset = (page - 1) * limit;
-                if (hasInstanceCount) {
-                    total = await instance.count(afterWhere, undefined);
-                } else {
-                    total = await GenModel.count(instance, tableName, afterWhere);
-                }
+                total = await GenModel.count(instance, tableName, afterWhere);
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere, undefined, limit, offset);
                 } else {

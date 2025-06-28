@@ -13,8 +13,10 @@ export class GenModel {
     setTableName(tableName: string) { this.tableName = tableName; }
     getTableName(): string { return this.tableName; }
 
-    async getSeqNextVal(client?: any): Promise<number> {
-        const seqName = getSequenceName(this);
+
+    static async getSeqNextVal(object: Object, client?: any): Promise<number> {
+        if (!object) throw new BadRequestException('Object is required');
+        const seqName = getSequenceName(object);
         if (!seqName) throw new BadRequestException('Sequence name is not set');
         const queryExecutor = client || DatabaseUtil.getPool();
         const query = `SELECT nextval('${seqName}') as next_value`;
@@ -22,10 +24,12 @@ export class GenModel {
         return result.rows[0].next_value;
     }
 
-    async getId(client?: any): Promise<string> {
-        const prefix = getSequencePrefix(this);
+    static async getId(object: Object, client?: any): Promise<string> {
+        if (!object) throw new BadRequestException('Object is required');
+        const prefix = getSequencePrefix(object);
         if (!prefix) throw new BadRequestException('Sequence prefix is not set');
-        return `${prefix}${await this.getSeqNextVal(client)}`;
+        const seqNextVal = await GenModel.getSeqNextVal(object, client);
+        return `${prefix}${seqNextVal}`;
     }
 
     static async create(object: Object, tableName: string, client?: any): Promise<Object> {
@@ -40,6 +44,8 @@ export class GenModel {
         if (hasIdProperty && (idValue === null || idValue === undefined)) {
             if (typeof (object as any).getId === 'function') {
                 (object as any).id = await (object as any).getId(client);
+            } else {
+                (object as any).id = await GenModel.getId(object, client);
             }
         }
         
@@ -186,6 +192,14 @@ export class GenModel {
         const result = await queryExecutor.query(query);
         const ClassConstructor = Object.getPrototypeOf(instance).constructor as { new (): any };
         return result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row));
+    }
+
+    async getId(client?: any): Promise<string> {
+        return await GenModel.getId(this, client);
+    }
+
+    async getSeqNextVal(client?: any): Promise<number> {
+        return await GenModel.getSeqNextVal(this, client);
     }
 
     async executeReturnedQuery (query: string, client?: any): Promise<Object[]> {
