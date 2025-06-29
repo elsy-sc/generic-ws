@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/annotation/jwt-auth.annotation';
+import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { ResponseUtils } from 'src/util/response.util';
 import { TableUtil } from 'src/util/table.util';

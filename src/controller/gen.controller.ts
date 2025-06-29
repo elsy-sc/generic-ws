@@ -4,7 +4,7 @@ import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
 import { GenericRequest } from 'src/interface/request.interface';
-import { JwtAuthGuard } from 'src/annotation/jwt-auth.annotation';
+import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
 @Controller('api/gen')
 @UseGuards(JwtAuthGuard)
 export class GenController {
