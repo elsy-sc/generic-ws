@@ -17,6 +17,6 @@ export class TopbarNav extends NavItem{
         items.forEach(item => {
             item.children = items.filter(child => child.parent_id === item.id);
         });
-        return items;
+        return items.filter(item => item.parent_id == null);    
     }
 }

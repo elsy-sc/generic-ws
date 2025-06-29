@@ -2,6 +2,7 @@ import { DatabaseUtil } from "src/util/database.util";
 import { ReflectUtil } from "src/util/reflect.util";
 import { getSequenceName, getSequencePrefix } from "src/annotation/sequence.annotation";
 import { BadRequestException } from '@nestjs/common';
+import { GenUtil } from "src/util/gen.util";
 
 export class GenModel {
     private tableName: string;
@@ -62,7 +63,7 @@ export class GenModel {
         const query = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders}) RETURNING *`;
 
         const result = await queryExecutor.query(query, values);
-        return result.rows[0];
+        return GenUtil.toModelPropertiesCase(object, result.rows)[0];
     }
 
     static async read(
@@ -95,7 +96,7 @@ export class GenModel {
             query += ` LIMIT ${limit} OFFSET ${offset}`;
         }
         const result = await queryExecutor.query(query, values);
-        return result.rows;
+        return GenUtil.toModelPropertiesCase(object, result.rows);
     }
 
     static async count(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<number> {
@@ -148,7 +149,7 @@ export class GenModel {
 
         const query = `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}${afterWhere ? ' AND ' + afterWhere : ''} RETURNING *`;
         const result = await queryExecutor.query(query, values);
-        return result.rows[0];
+        return GenUtil.toModelPropertiesCase(objectToUpdate, result.rows)[0];
     }
 
     static async delete(object: Object, tableName: string, afterWhere?: string, client?: any): Promise<number> {
@@ -191,7 +192,7 @@ export class GenModel {
         const queryExecutor = client || DatabaseUtil.getPool();
         const result = await queryExecutor.query(query);
         const ClassConstructor = Object.getPrototypeOf(instance).constructor as { new (): any };
-        return result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row));
+        return GenUtil.toModelPropertiesCase(instance, result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row)));
     }
 
     async getId(client?: any): Promise<string> {
