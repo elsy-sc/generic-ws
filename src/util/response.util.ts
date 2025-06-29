@@ -7,7 +7,7 @@ export class ResponseUtils {
         };
     }
 
-    static error(errors: any, message = 'An error occurred', statusCode = 500) {
+    static error(errors: any, message = 'An error occurred', data: any, statusCode = 500) {
         let errorValue = errors;
         if (Array.isArray(errors)) {
             errorValue = errors.length > 0 ? errors[0] : null;
@@ -15,6 +15,7 @@ export class ResponseUtils {
         return {
             error: message,
             message: errorValue,
+            data,
             statusCode
         };
     }

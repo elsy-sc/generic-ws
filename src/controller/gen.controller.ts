@@ -6,7 +6,7 @@ import { PaginationQuery } from 'src/interface/pagination.interface';
 import { GenericRequest } from 'src/interface/request.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
 @Controller('api/gen')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class GenController {
     @Post()
     async postAction(

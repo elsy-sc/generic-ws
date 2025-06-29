@@ -1,6 +1,6 @@
 import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtAuthUtil } from 'src/util/jwt-auth.util';
+import { JwtAuthUtil } from 'src/util/jwtAuth.util';
 import { ResponseUtils } from 'src/util/response.util';
 
 @Controller('api/auth')

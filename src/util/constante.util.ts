@@ -15,3 +15,6 @@ export const DEFAULT_APP_PORT = 8000;
 
 // Rewriting constants
 export const DEFAULT_UPSTREAM_URL = 'http://localhost:8000';
+
+// Bcrypt constants
+export const DEFAULT_BCRYPT_SALT_ROUNDS = 10;
