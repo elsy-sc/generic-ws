@@ -11,4 +11,7 @@ export const DEFAULT_DB_USER = 'myuser';
 export const DEFAULT_DB_PASSWORD = 'mypassword';
 
 // Application constants
-export const DEFAULT_APP_PORT = 3000;
+export const DEFAULT_APP_PORT = 8000;
+
+// Rewriting constants
+export const DEFAULT_UPSTREAM_URL = 'http://localhost:8000';
