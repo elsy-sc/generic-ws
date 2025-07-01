@@ -9,13 +9,13 @@ export class Users extends GenModel {
     @Property()
     public id: string;
     @Property()
-    public firstName: string | undefined;
+    public firstName?: string;
     @Property()
-    public lastName: string | undefined;
+    public lastName?: string;
     @Property()
-    public email: string | undefined;
+    public email?: string;
     @Property()
-    public password: string | undefined;
+    public password?: string;
 
     @Property()
     public createdAt: Date;
