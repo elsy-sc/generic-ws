@@ -22,8 +22,8 @@ export class MetaController {
                 .map(field => {
                     const type = Reflect.getMetadata('design:type', ClassConstructor.prototype, field)?.name || 'unknown';
                     return {
-                        name: field,
-                        type
+                        fieldName: field,
+                        fieldType: type
                     };
                 });
             return ResponseUtils.success(fields, 'Fields fetched', 200);
