@@ -1,13 +1,16 @@
-import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException, Logger } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtils } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
 import { GenericRequest } from 'src/interface/request.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
+
 @Controller('api/gen')
 // @UseGuards(JwtAuthGuard)
 export class GenController {
+    private readonly logger = new Logger(GenController.name);
+
     @Post()
     async postAction(
         @Query('action') action: string,
@@ -17,27 +20,39 @@ export class GenController {
         @Query('page') page?: number | string,
         @Query('limit') limit?: number | string
     ): Promise<any> {
+        this.logger.log(`POST /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
+        
         switch (action?.toLowerCase()) {
             case 'create':
-                return ResponseUtils.success(await this.handleCreate(className, tableName, body.data), 'Created successfully', 201);
+                this.logger.log(`Creating new ${className} record`);
+                const createResult = await this.handleCreate(className, tableName, body.data);
+                this.logger.log(`Successfully created ${className} record`);
+                return ResponseUtils.success(createResult, 'Created successfully', 201);
             case 'read': {
                 const data = body?.data ?? {};
                 const afterWhere = body?.afterWhere;
                 const parsedPage = page !== undefined ? Number(page) : undefined;
                 const parsedLimit = limit !== undefined ? Number(limit) : undefined;
+                
+                this.logger.log(`Reading ${className} records with pagination - Page: ${parsedPage}, Limit: ${parsedLimit}`);
+                const readResult = await this.handleRead(className, tableName, data, afterWhere, { page: parsedPage, limit: parsedLimit });
+                this.logger.log(`Successfully read ${readResult.results.length} ${className} records`);
+                
                 return ResponseUtils.success(
-                    await this.handleRead(className, tableName, data, afterWhere, { page: parsedPage, limit: parsedLimit }),
+                    readResult,
                     'Read successfully',
                     200
                 );
             }
             default:
+                this.logger.warn(`POST action '${action}' not implemented`);
                 throw new BadRequestException('POST: action not implemented');
         }
     }
 
     @Get()
     async getAction(): Promise<any> {
+        this.logger.warn('GET /api/gen - Action not implemented');
         throw new BadRequestException('GET: action not implemented');
     }
 
@@ -48,14 +63,20 @@ export class GenController {
         @Query('tableName') tableName: string,
         @Body() body: GenericRequest
     ): Promise<any> {
+        this.logger.log(`PUT /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
+        
         switch (action?.toLowerCase()) {
             case 'update':
+                this.logger.log(`Updating ${className} records`);
+                const updateResult = await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere);
+                this.logger.log(`Successfully updated ${className} records`);
                 return ResponseUtils.success(
-                    await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere),
+                    updateResult,
                     'Updated successfully',
                     200
                 );
             default:
+                this.logger.warn(`PUT action '${action}' not implemented`);
                 throw new BadRequestException('PUT: action not implemented');
         }
     }
@@ -67,26 +88,35 @@ export class GenController {
         @Query('tableName') tableName: string,
         @Body() body: GenericRequest
     ): Promise<any> {
+        this.logger.log(`DELETE /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
+        
         switch (action?.toLowerCase()) {
             case 'delete': {
+                this.logger.log(`Deleting ${className} records`);
                 const deletedCount = await this.handleDelete(className, tableName, body.data, body.afterWhere);
+                this.logger.log(`Successfully deleted ${deletedCount} ${className} records`);
                 return ResponseUtils.success({ deletedCount }, 'Deleted successfully', 200);
             }
             default:
+                this.logger.warn(`DELETE action '${action}' not implemented`);
                 throw new BadRequestException('DELETE: action not implemented');
         }
     }
 
     private async handleCreate(className: string, tableName: string, data: any): Promise<any> {
         if (!data) {
+            this.logger.error(`Create failed for ${className}: Data is required`);
             throw new BadRequestException('Data is required for create action');
         }
 
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            ReflectUtil.setPropertyValues(instance, data);
-            ReflectUtil.setPropertyValues(instance, { tablename: tableName });
+            
+            // Utiliser notre nouvelle méthode qui gère automatiquement les setters
+            GenModel.setPropertyValues(instance, data);
+            GenModel.setPropertyValues(instance, { tablename: tableName });
+            
             const hasInstanceCreate = typeof instance.create === 'function';
             if (hasInstanceCreate) {
                 return await instance.create();
@@ -94,6 +124,7 @@ export class GenController {
                 return await GenModel.create(instance, tableName);
             }
         } catch (error) {
+            this.logger.error(`Failed to create ${className}: ${error.message}`);
             throw new BadRequestException(`Failed to create ${className}: ${error.message}`);
         }
     }
@@ -106,10 +137,12 @@ export class GenController {
         pagination?: PaginationQuery
     ): Promise<any> {
         try {
+            this.logger.debug(`Reading ${className} from ${tableName} with data: ${JSON.stringify(data)}`);
+            
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            ReflectUtil.setPropertyValues(instance, data);
-            ReflectUtil.setPropertyValues(instance, { tablename: tableName });
+            GenModel.setPropertyValues(instance, data);
+            GenModel.setPropertyValues(instance, { tablename: tableName });
 
             let results: any[];
             let total = 0;
@@ -123,6 +156,9 @@ export class GenController {
                 limit = Number(pagination.limit);
                 page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
                 const offset = (page - 1) * limit;
+                
+                this.logger.debug(`Paginated read - Page: ${page}, Limit: ${limit}, Offset: ${offset}`);
+                
                 total = await GenModel.count(instance, tableName, afterWhere);
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere, undefined, limit, offset);
@@ -131,6 +167,7 @@ export class GenController {
                 }
                 totalPages = Math.ceil(total / limit);
             } else {
+                this.logger.debug('Non-paginated read');
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere);
                 } else {
@@ -138,6 +175,8 @@ export class GenController {
                 }
                 total = results.length;
             }
+
+            this.logger.debug(`Read completed - Found ${results.length} records, Total: ${total}`);
 
             return {
                 results,
@@ -149,53 +188,71 @@ export class GenController {
                 }
             };
         } catch (error) {
+            this.logger.error(`Failed to read ${className}: ${error.message}`);
             throw new BadRequestException(`Failed to read ${className}: ${error.message}`);
         }
     }
 
     private async handleUpdate(className: string, tableName: string, objectToUpdate: any, objectToUpdateWith: any, afterWhere?: string): Promise<any> {
         if (!objectToUpdate || !objectToUpdateWith) {
+            this.logger.error(`Update failed for ${className}: Missing required objects`);
             throw new BadRequestException('objectToUpdate and objectToUpdateWith are required for update action');
         }
 
         try {
+            this.logger.debug(`Updating ${className} - Condition: ${JSON.stringify(objectToUpdate)}, Update: ${JSON.stringify(objectToUpdateWith)}`);
+            
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             
             const conditionInstance = new ClassConstructor();
-            ReflectUtil.setPropertyValues(conditionInstance, objectToUpdate);
-            ReflectUtil.setPropertyValues(conditionInstance, { tablename: tableName });
+            GenModel.setPropertyValues(conditionInstance, objectToUpdate);
+            GenModel.setPropertyValues(conditionInstance, { tablename: tableName });
 
             const updateInstance = new ClassConstructor();
-            ReflectUtil.setPropertyValues(updateInstance, objectToUpdateWith);
+            GenModel.setPropertyValues(updateInstance, objectToUpdateWith);
 
             const hasInstanceUpdate = typeof conditionInstance.update === 'function';
+            let result;
             if (hasInstanceUpdate) {
-                return await conditionInstance.update(updateInstance, afterWhere);
+                result = await conditionInstance.update(updateInstance, afterWhere);
             } else {
-                return await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
+                result = await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
             }
+            
+            this.logger.debug(`Update completed for ${className}`);
+            return result;
         } catch (error) {
+            this.logger.error(`Failed to update ${className}: ${error.message}`);
             throw new BadRequestException(`Failed to update ${className}: ${error.message}`);
         }
     }
 
     private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<number> {
         if (!data || Object.keys(data).length === 0) {
+            this.logger.error(`Delete failed for ${className}: At least one property is required`);
             throw new BadRequestException('At least one property is required for delete action');
         }
+        
         try {
+            this.logger.debug(`Deleting ${className} with conditions: ${JSON.stringify(data)}`);
+            
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            ReflectUtil.setPropertyValues(instance, data);
-            ReflectUtil.setPropertyValues(instance, { tablename: tableName });
+            GenModel.setPropertyValues(instance, data);
+            GenModel.setPropertyValues(instance, { tablename: tableName });
 
             const hasInstanceDelete = typeof instance.delete === 'function';
+            let deletedCount;
             if (hasInstanceDelete) {
-                return await instance.delete(afterWhere);
+                deletedCount = await instance.delete(afterWhere);
             } else {
-                return await GenModel.delete(instance, tableName, afterWhere);
+                deletedCount = await GenModel.delete(instance, tableName, afterWhere);
             }
+            
+            this.logger.debug(`Delete completed for ${className} - ${deletedCount} records affected`);
+            return deletedCount;
         } catch (error) {
+            this.logger.error(`Failed to delete ${className}: ${error.message}`);
             throw new BadRequestException(`Failed to delete ${className}: ${error.message}`);
         }
     }

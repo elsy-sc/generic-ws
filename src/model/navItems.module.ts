@@ -13,7 +13,7 @@ export class NavItem extends GenModel{
     _to: string;
 
     @Property()
-    parent_id: string;
+    parent_id: string | null;
 
     children?: NavItem[];
 

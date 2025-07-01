@@ -19,4 +19,8 @@ export class SidebarNav extends NavItem{
         });
         return items.filter(item => item.parent_id == null);
     }
+
+    setParent_id(parent_id: string) {
+        this.parent_id = (parent_id === 'null' || parent_id === 'undefined' || parent_id.trim() === '') ? null : parent_id;
+    }
 }

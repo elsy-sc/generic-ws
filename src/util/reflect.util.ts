@@ -58,9 +58,21 @@ export class ReflectUtil {
                     const originalProp = Object.getOwnPropertyNames(instance).find(p => 
                         p.toLowerCase() === prop.toLowerCase()
                     ) || prop;
-                    instance[originalProp] = values[matchingKey];
+                    
+                    const setterName = ReflectUtil.getSetterName(originalProp);
+                    const hasSetter = typeof instance[setterName] === 'function';
+                    
+                    if (hasSetter) {
+                        instance[setterName](values[matchingKey]);
+                    } else {
+                        instance[originalProp] = values[matchingKey];
+                    }
                 }
             }
         }
+    }
+
+    static getSetterName(propertyName: string): string {
+        return `set${StringUtil.setFirstLetterToUpperCase(propertyName)}`;
     }
 }

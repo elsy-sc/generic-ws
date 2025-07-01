@@ -42,11 +42,13 @@ export class GenModel {
         const hasIdProperty = 'id' in object;
         const idValue = hasIdProperty ? (object as any).id : undefined;
     
-        if (hasIdProperty && (idValue === null || idValue === undefined)) {
+        if (hasIdProperty && (idValue === null || idValue === undefined || idValue.toString().trim() === '')) {
             if (typeof (object as any).getId === 'function') {
-                (object as any).id = await (object as any).getId(client);
+                const newId = await (object as any).getId(client);
+                GenModel.setPropertyValues(object, { id: newId });
             } else {
-                (object as any).id = await GenModel.getId(object, client);
+                const newId = await GenModel.getId(object, client);
+                GenModel.setPropertyValues(object, { id: newId });
             }
         }
         
@@ -193,6 +195,16 @@ export class GenModel {
         const result = await queryExecutor.query(query);
         const ClassConstructor = Object.getPrototypeOf(instance).constructor as { new (): any };
         return GenUtil.toModelPropertiesCase(instance, result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row)));
+    }
+
+    // Méthode pour setter les propriétés avec utilisation automatique des setters
+    static setPropertyValues(instance: any, values: Record<string, any>): void {
+        ReflectUtil.setPropertyValues(instance, values);
+    }
+
+    // Méthode d'instance pour setter les propriétés
+    setPropertyValues(values: Record<string, any>): void {
+        GenModel.setPropertyValues(this, values);
     }
 
     async getId(client?: any): Promise<string> {
