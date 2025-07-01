@@ -4,6 +4,9 @@ import { UnauthorizedException } from '@nestjs/common';
 
 export class JwtAuthUtil {
     static generateToken(payload: any, jwtService: JwtService, expiresIn: string = process.env.JWT_EXPIRATION || DEFAULT_JWT_EXPIRATION): string {
+        if(expiresIn === '-1') {
+            return jwtService.sign(payload);
+        }
         return jwtService.sign(payload, { expiresIn });
     }
 
