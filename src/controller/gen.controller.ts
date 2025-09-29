@@ -4,7 +4,7 @@ import { GenModel } from 'src/model/gen.model';
 import { ResponseUtil } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
-import { ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { GenericRequest as GenericRequestDto } from 'src/model/request.model';
 
 @Controller('api/gen')
@@ -18,6 +18,7 @@ export class GenController {
     @ApiQuery({ name: 'page', required: false, type: Number })
     @ApiQuery({ name: 'limit', required: false, type: Number })
     @ApiBody({ type:  GenericRequestDto})
+    @ApiBearerAuth()
     @Post()
     async postAction(
         @Query('action') action: string,
@@ -67,6 +68,7 @@ export class GenController {
     @ApiQuery({ name: 'className', required: true, type: String })
     @ApiQuery({ name: 'tableName', required: false, type: String })
     @ApiBody({ type:  GenericRequestDto})
+    @ApiBearerAuth()
     @Put()
     async putAction(
         @Query('action') action: string,
@@ -96,6 +98,7 @@ export class GenController {
     @ApiQuery({ name: 'className', required: true, type: String })
     @ApiQuery({ name: 'tableName', required: false, type: String })
     @ApiBody({ type:  GenericRequestDto})
+    @ApiBearerAuth()
     @Delete()
     async deleteAction(
         @Query('action') action: string,
