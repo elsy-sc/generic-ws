@@ -7,7 +7,7 @@ import { GenericRequest } from 'src/interface/request.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
 
 @Controller('api/gen')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class GenController {
     private readonly logger = new Logger(GenController.name);
 

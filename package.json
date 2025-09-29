@@ -2,7 +2,7 @@
   "name": "generic-ws",
   "version": "0.0.1",
   "description": "Generic Web Service built with NestJS and Fastify",
-  "author": "",
+  "author": "elsy-sc",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
