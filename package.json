@@ -1,7 +1,7 @@
 {
   "name": "generic-ws",
   "version": "0.0.1",
-  "description": "Generic WebSocket Server with NestJS and Fastify",
+  "description": "Generic Web Service built with NestJS and Fastify",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

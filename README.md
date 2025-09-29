@@ -1,6 +1,6 @@
 # generic-ws
 
-A generic REST API server built with NestJS and Fastify, supporting dynamic CRUD operations for any model and table using reflection and metadata.
+A generic web service built with NestJS and Fastify, supporting dynamic CRUD operations for any model and table using reflection and metadata.
 
 ## Features
 
