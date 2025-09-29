@@ -139,13 +139,12 @@ export class GenController {
         pagination?: PaginationQuery
     ): Promise<any> {
         try {
-            
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
             const tableNameFinal = tableName || instance.getTableName();
-            
+
             this.logger.debug(`Reading ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
-            
+
             GenModel.setPropertyValues(instance, data);
             GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
 
@@ -161,7 +160,7 @@ export class GenController {
                 limit = Number(pagination.limit);
                 page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
                 const offset = (page - 1) * limit;
-                
+
                 this.logger.debug(`Paginated read - Page: ${page}, Limit: ${limit}, Offset: ${offset}`);
 
                 total = await GenModel.count(instance, tableNameFinal, afterWhere);
@@ -205,13 +204,15 @@ export class GenController {
         }
 
         try {
-            this.logger.debug(`Updating ${className} - Condition: ${JSON.stringify(objectToUpdate)}, Update: ${JSON.stringify(objectToUpdateWith)}`);
-            
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
-            
+
+            this.logger.debug(`Updating ${className} - Condition: ${JSON.stringify(objectToUpdate)}, Update: ${JSON.stringify(objectToUpdateWith)}`);
+
             const conditionInstance = new ClassConstructor();
+            const tableNameFinal = tableName || conditionInstance.getTableName();
+
             GenModel.setPropertyValues(conditionInstance, objectToUpdate);
-            GenModel.setPropertyValues(conditionInstance, { tablename: tableName });
+            GenModel.setPropertyValues(conditionInstance, { tablename: tableNameFinal });
 
             const updateInstance = new ClassConstructor();
             GenModel.setPropertyValues(updateInstance, objectToUpdateWith);
@@ -221,9 +222,9 @@ export class GenController {
             if (hasInstanceUpdate) {
                 result = await conditionInstance.update(updateInstance, afterWhere);
             } else {
-                result = await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
+                result = await GenModel.update(conditionInstance, updateInstance, tableNameFinal, afterWhere);
             }
-            
+
             this.logger.debug(`Update completed for ${className}`);
             return result;
         } catch (error) {
