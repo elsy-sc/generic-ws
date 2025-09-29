@@ -1,5 +1,5 @@
 import { Property } from "src/annotation/property.annotation";
-import { NavItem } from "./navItems.module";
+import { NavItem } from "./navItems.model";
 import { Sequence } from "src/annotation/sequence.annotation";
 
 export class SidebarNav extends NavItem{

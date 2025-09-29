@@ -3,21 +3,26 @@ import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
 import { ResponseUtil } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
-import { GenericRequest } from 'src/interface/request.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiQuery } from '@nestjs/swagger';
+import { GenericRequest as GenericRequestDto } from 'src/model/request.model';
 
 @Controller('api/gen')
 @UseGuards(JwtAuthGuard)
 export class GenController {
     private readonly logger = new Logger(GenController.name);
 
+    @ApiQuery({ name: 'action', required: true, type: String })
+    @ApiQuery({ name: 'className', required: true, type: String })
     @ApiQuery({ name: 'tableName', required: false, type: String })
+    @ApiQuery({ name: 'page', required: false, type: Number })
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiBody({ type:  GenericRequestDto})
     @Post()
     async postAction(
         @Query('action') action: string,
         @Query('className') className: string,
-        @Body() body: GenericRequest,
+        @Body() body: GenericRequestDto,
         @Query('tableName') tableName?: string,
         @Query('page') page?: number | string,
         @Query('limit') limit?: number | string
@@ -58,12 +63,15 @@ export class GenController {
         throw new BadRequestException('GET: action not implemented');
     }
 
+    @ApiQuery({ name: 'action', required: true, type: String })
+    @ApiQuery({ name: 'className', required: true, type: String })
     @ApiQuery({ name: 'tableName', required: false, type: String })
+    @ApiBody({ type:  GenericRequestDto})
     @Put()
     async putAction(
         @Query('action') action: string,
         @Query('className') className: string,
-        @Body() body: GenericRequest,
+        @Body() body: GenericRequestDto,
         @Query('tableName') tableName?: string
     ): Promise<any> {
         this.logger.log(`PUT /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
@@ -84,12 +92,15 @@ export class GenController {
         }
     }
 
+    @ApiQuery({ name: 'action', required: true, type: String })
+    @ApiQuery({ name: 'className', required: true, type: String })
     @ApiQuery({ name: 'tableName', required: false, type: String })
+    @ApiBody({ type:  GenericRequestDto})
     @Delete()
     async deleteAction(
         @Query('action') action: string,
         @Query('className') className: string,
-        @Body() body: GenericRequest,
+        @Body() body: GenericRequestDto,
         @Query('tableName') tableName?: string,
     ): Promise<any> {
         this.logger.log(`DELETE /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
