@@ -112,7 +112,7 @@ export class GenController {
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            const tableNameFinal = tableName || instance.getTableName();
+            const tableNameFinal = tableName || instance.tableName;
 
             this.logger.debug(`Creating ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
 
@@ -141,7 +141,7 @@ export class GenController {
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            const tableNameFinal = tableName || instance.getTableName();
+            const tableNameFinal = tableName || instance.tableName;
 
             this.logger.debug(`Reading ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
 
@@ -208,7 +208,7 @@ export class GenController {
 
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const conditionInstance = new ClassConstructor();
-            const tableNameFinal = tableName || conditionInstance.getTableName();
+            const tableNameFinal = tableName || conditionInstance.tableName;
 
             GenModel.setPropertyValues(conditionInstance, objectToUpdate);
             GenModel.setPropertyValues(conditionInstance, { tablename: tableNameFinal });
@@ -243,7 +243,7 @@ export class GenController {
 
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            const tableNameFinal = tableName || instance.getTableName();
+            const tableNameFinal = tableName || instance.tableName;
 
             GenModel.setPropertyValues(instance, data);
             GenModel.setPropertyValues(instance, { tablename: tableNameFinal });

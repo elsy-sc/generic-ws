@@ -204,12 +204,12 @@ export class GenModel {
         return GenUtil.toModelPropertiesCase(instance, result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row)));
     }
 
-    // Méthode pour setter les propriétés avec utilisation automatique des setters
+    // Method to set properties using automatic setters
     static setPropertyValues(instance: any, values: Record<string, any>): void {
         ReflectUtil.setPropertyValues(instance, values);
     }
 
-    // Méthode d'instance pour setter les propriétés
+    // Instance method to set properties
     setPropertyValues(values: Record<string, any>): void {
         GenModel.setPropertyValues(this, values);
     }
