@@ -1,4 +1,5 @@
 import { Controller, Get, Query, UseGuards, Logger } from '@nestjs/common';
+import { ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { ResponseUtil } from 'src/util/response.util';
@@ -9,6 +10,8 @@ import { TableUtil } from 'src/util/table.util';
 export class MetaController {
     private readonly logger = new Logger(MetaController.name);
     
+    @ApiQuery({ name: 'className', required: true, type: String })
+    @ApiQuery({ name: 'tableName', required: true, type: String })
     @Get('fields')
     async fields(
         @Query('className') className: string,

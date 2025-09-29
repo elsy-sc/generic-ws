@@ -4,7 +4,19 @@ export class DocsUtil {
 	static setupSwagger(app: any, version: string) {
 		const config = new DocumentBuilder()
 			.setTitle('Generic Web Service Documentation')
-			.setDescription('')
+			.setDescription(
+                'A NestJS-based web service providing dynamic CRUD operations for any model and table using reflection and metadata.\n' +
+                'Features:\n' +
+                '- JWT authentication\n' +
+                '- PostgreSQL integration\n' +
+                '- Automatic property mapping via decorators\n' +
+                '- Pagination support\n' +
+                '- Route aliasing\n\n' +
+                'Endpoints:\n' +
+                '- /api/gen: Dynamic CRUD for any table/model\n' +
+                '- /api/meta: Metadata and field info\n' +
+                '- /api/auth: JWT token generation\n'
+            )
 			.setVersion(version)
 			.addBearerAuth()
 			.build();
