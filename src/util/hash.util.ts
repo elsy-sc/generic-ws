@@ -1,8 +1,9 @@
 import * as bcrypt from 'bcrypt';
+import { DEFAULT_BCRYPT_SALT_ROUNDS } from './constante.util';
 
 export class HashUtil {
   static async hash(text: string): Promise<string> {
-    const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
+    const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || DEFAULT_BCRYPT_SALT_ROUNDS;
     return bcrypt.hash(text, saltRounds);
   }
 

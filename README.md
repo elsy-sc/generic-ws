@@ -1,6 +1,6 @@
 # generic-ws
 
-A generic REST API server built with NestJS and Fastify, supporting dynamic CRUD operations for any model and table using reflection and metadata.
+A generic web service built with NestJS and Fastify, supporting dynamic CRUD operations for any model and table using reflection and metadata.
 
 ## Features
 
@@ -68,7 +68,7 @@ All endpoints are prefixed with `/api`.
 #### Example: Create
 
 ```sh
-curl -X POST "http://localhost:3000/api/gen?action=create&className=Person&tableName=person" \
+curl -X POST "http://localhost:3000/api/gen?action=create&className=model/users.model&tableName=users" \
   -H "Content-Type: application/json" \
   -d '{"data": {"firstName": "John", "lastName": "Doe", "email": "john@example.com", "phone": "1234567890"}}'
 ```
@@ -76,7 +76,7 @@ curl -X POST "http://localhost:3000/api/gen?action=create&className=Person&table
 #### Example: Read with Pagination
 
 ```sh
-curl -X POST "http://localhost:3000/api/gen?action=read&className=Person&tableName=person&page=1&limit=10" \
+curl -X POST "http://localhost:3000/api/gen?action=read&className=model/users.model&tableName=users&page=1&limit=10" \
   -H "Content-Type: application/json" \
   -d '{"data": {}}'
 ```
@@ -84,17 +84,17 @@ curl -X POST "http://localhost:3000/api/gen?action=read&className=Person&tableNa
 #### Example: Update
 
 ```sh
-curl -X POST "http://localhost:3000/api/gen?action=update&className=Person&tableName=person" \
+curl -X POST "http://localhost:3000/api/gen?action=update&className=model/users.model&tableName=users" \
   -H "Content-Type: application/json" \
-  -d '{"objectToUpdate": {"id": "PERS1"}, "objectToUpdateWith": {"email": "new@email.com"}}'
+  -d '{"objectToUpdate": {"id": "USR1"}, "objectToUpdateWith": {"email": "new@email.com"}}'
 ```
 
 #### Example: Delete
 
 ```sh
-curl -X POST "http://localhost:3000/api/gen?action=delete&className=Person&tableName=person" \
+curl -X POST "http://localhost:3000/api/gen?action=delete&className=model/users.model&tableName=users" \
   -H "Content-Type: application/json" \
-  -d '{"data": {"id": "PERS1"}}'
+  -d '{"data": {"id": "USR1"}}'
 ```
 
 ### Metadata Endpoint
@@ -106,15 +106,17 @@ Returns the fields and types for the specified class and table.
 #### Example
 
 ```sh
-curl "http://localhost:3000/api/meta?className=Person&tableName=person"
+curl "http://localhost:3000/api/meta?className=model/users.model&tableName=users"
 ```
 
 ## Project Structure
 
-- `src/model/`: Model classes (e.g., `Person`)
+- `src/model/`: Model classes (e.g., `User`)
 - `src/controller/`: API controllers
-- `src/util/`: Utility classes (reflection, database, etc.)
 - `src/annotation/`: Decorators for properties and sequences
+- `src/util/`: Utility classes (reflection, database, etc.)
+- `src/interface/`: Request/response interfaces
+- `src/middleware/`: Middleware (e.g., logging, error handling)
 
 ## Extending
 
@@ -124,5 +126,3 @@ To add a new model:
 3. Use the class name and table name in API requests.
 
 ---
-
-**Note:** This project is intended for rapid prototyping and internal tools. Use with caution in production
