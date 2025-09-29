@@ -137,12 +137,15 @@ export class GenController {
         pagination?: PaginationQuery
     ): Promise<any> {
         try {
-            this.logger.debug(`Reading ${className} from ${tableName} with data: ${JSON.stringify(data)}`);
             
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
+            const tableNameFinal = tableName || instance.getTableName();
+            
+            this.logger.debug(`Reading ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
+            
             GenModel.setPropertyValues(instance, data);
-            GenModel.setPropertyValues(instance, { tablename: tableName });
+            GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
 
             let results: any[];
             let total = 0;
@@ -158,12 +161,12 @@ export class GenController {
                 const offset = (page - 1) * limit;
                 
                 this.logger.debug(`Paginated read - Page: ${page}, Limit: ${limit}, Offset: ${offset}`);
-                
-                total = await GenModel.count(instance, tableName, afterWhere);
+
+                total = await GenModel.count(instance, tableNameFinal, afterWhere);
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere, undefined, limit, offset);
                 } else {
-                    results = await GenModel.read(instance, tableName, afterWhere, undefined, limit, offset);
+                    results = await GenModel.read(instance, tableNameFinal, afterWhere, undefined, limit, offset);
                 }
                 totalPages = Math.ceil(total / limit);
             } else {
@@ -171,7 +174,7 @@ export class GenController {
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere);
                 } else {
-                    results = await GenModel.read(instance, tableName, afterWhere);
+                    results = await GenModel.read(instance, tableNameFinal, afterWhere);
                 }
                 total = results.length;
             }
