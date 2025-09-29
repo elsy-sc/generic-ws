@@ -204,10 +204,9 @@ export class GenController {
         }
 
         try {
-            const ClassConstructor = await ReflectUtil.getClass(`${className}`);
-
             this.logger.debug(`Updating ${className} - Condition: ${JSON.stringify(objectToUpdate)}, Update: ${JSON.stringify(objectToUpdateWith)}`);
 
+            const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const conditionInstance = new ClassConstructor();
             const tableNameFinal = tableName || conditionInstance.getTableName();
 
@@ -238,23 +237,25 @@ export class GenController {
             this.logger.error(`Delete failed for ${className}: At least one property is required`);
             throw new BadRequestException('At least one property is required for delete action');
         }
-        
+
         try {
             this.logger.debug(`Deleting ${className} with conditions: ${JSON.stringify(data)}`);
-            
+
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
+            const tableNameFinal = tableName || instance.getTableName();
+
             GenModel.setPropertyValues(instance, data);
-            GenModel.setPropertyValues(instance, { tablename: tableName });
+            GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
 
             const hasInstanceDelete = typeof instance.delete === 'function';
             let deletedCount;
             if (hasInstanceDelete) {
                 deletedCount = await instance.delete(afterWhere);
             } else {
-                deletedCount = await GenModel.delete(instance, tableName, afterWhere);
+                deletedCount = await GenModel.delete(instance, tableNameFinal, afterWhere);
             }
-            
+
             this.logger.debug(`Delete completed for ${className} - ${deletedCount} records affected`);
             return deletedCount;
         } catch (error) {
