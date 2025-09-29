@@ -10,7 +10,7 @@ export class AuthController {
 
   constructor(private readonly jwtService: JwtService) {}
 
-  @ApiBody({})
+  @ApiBody({ schema: { example: {}}})
   @Post('token')
   async generateToken(@Body() payload: any) {
     this.logger.log('POST /api/auth/token - Token generation requested');
