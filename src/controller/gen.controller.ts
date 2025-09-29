@@ -198,7 +198,7 @@ export class GenController {
     }
 
     private async handleUpdate(className: string, tableName: string, objectToUpdate: any, objectToUpdateWith: any, afterWhere?: string): Promise<any> {
-        if (!objectToUpdate || !objectToUpdateWith) {
+        if ((!objectToUpdate || !objectToUpdateWith) && !afterWhere) {
             this.logger.error(`Update failed for ${className}: Missing required objects`);
             throw new BadRequestException('objectToUpdate and objectToUpdateWith are required for update action');
         }
@@ -233,7 +233,7 @@ export class GenController {
     }
 
     private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<number> {
-        if (!data || Object.keys(data).length === 0) {
+        if ((!data || Object.keys(data).length === 0) && !afterWhere) {
             this.logger.error(`Delete failed for ${className}: At least one property is required`);
             throw new BadRequestException('At least one property is required for delete action');
         }
