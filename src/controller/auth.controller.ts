@@ -1,7 +1,7 @@
 import { Controller, Post, Body, BadRequestException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthUtil } from 'src/util/jwtAuth.util';
-import { ResponseUtils } from 'src/util/response.util';
+import { ResponseUtil } from 'src/util/response.util';
 
 @Controller('api/auth')
 export class AuthController {
@@ -22,10 +22,10 @@ export class AuthController {
         const token = JwtAuthUtil.generateToken(payload, this.jwtService);
         this.logger.log('Token generated successfully');
         
-        return ResponseUtils.success({ token }, 'Token generated', 200);
+        return ResponseUtil.success({ token }, 'Token generated', 200);
     } catch (error) {
         this.logger.error(`Token generation failed: ${error.message}`);
-        return ResponseUtils.error(error.message, 'Token generation failed', 400);
+        return ResponseUtil.error(error.message, 'Token generation failed', 400);
     }
   }
 }

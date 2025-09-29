@@ -3,7 +3,7 @@ import { JwtService } from "@nestjs/jwt";
 import { UserLoginInterface } from "src/interface/user.interface";
 import { Users } from "src/model/users.model";
 import { JwtAuthUtil } from "src/util/jwtAuth.util";
-import { ResponseUtils } from "src/util/response.util";
+import { ResponseUtil } from "src/util/response.util";
 
 @Controller('api/users')
 export class UserController {
@@ -24,10 +24,10 @@ export class UserController {
         if(loggedInUser) {
             const token = JwtAuthUtil.generateToken(loggedInUser, this.jwtService);
             this.logger.log(`Login successful for user: ${email}`);
-            return ResponseUtils.success({ user: loggedInUser, token }, 'Login successful', 200);
+            return ResponseUtil.success({ user: loggedInUser, token }, 'Login successful', 200);
         } else {
             this.logger.warn(`Login failed for user: ${email} - Invalid credentials`);
-            return ResponseUtils.error('Login failed', 'Invalid credentials', null, 401);
+            return ResponseUtil.error('Login failed', 'Invalid credentials', null, 401);
         }
     }
 }

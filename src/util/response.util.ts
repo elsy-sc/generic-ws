@@ -1,4 +1,4 @@
-export class ResponseUtils {
+export class ResponseUtil {
     static success(data: any, message = 'Success', statusCode = 200) {
         return {
             message,

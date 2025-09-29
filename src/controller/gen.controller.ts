@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Put, Delete, Body, Query, UseGuards, BadRequestException, Logger } from '@nestjs/common';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { GenModel } from 'src/model/gen.model';
-import { ResponseUtils } from 'src/util/response.util';
+import { ResponseUtil } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
 import { GenericRequest } from 'src/interface/request.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
@@ -27,7 +27,7 @@ export class GenController {
                 this.logger.log(`Creating new ${className} record`);
                 const createResult = await this.handleCreate(className, tableName, body.data);
                 this.logger.log(`Successfully created ${className} record`);
-                return ResponseUtils.success(createResult, 'Created successfully', 201);
+                return ResponseUtil.success(createResult, 'Created successfully', 201);
             case 'read': {
                 const data = body?.data ?? {};
                 const afterWhere = body?.afterWhere;
@@ -38,7 +38,7 @@ export class GenController {
                 const readResult = await this.handleRead(className, tableName, data, afterWhere, { page: parsedPage, limit: parsedLimit });
                 this.logger.log(`Successfully read ${readResult.results.length} ${className} records`);
                 
-                return ResponseUtils.success(
+                return ResponseUtil.success(
                     readResult,
                     'Read successfully',
                     200
@@ -70,7 +70,7 @@ export class GenController {
                 this.logger.log(`Updating ${className} records`);
                 const updateResult = await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere);
                 this.logger.log(`Successfully updated ${className} records`);
-                return ResponseUtils.success(
+                return ResponseUtil.success(
                     updateResult,
                     'Updated successfully',
                     200
@@ -95,7 +95,7 @@ export class GenController {
                 this.logger.log(`Deleting ${className} records`);
                 const deletedCount = await this.handleDelete(className, tableName, body.data, body.afterWhere);
                 this.logger.log(`Successfully deleted ${deletedCount} ${className} records`);
-                return ResponseUtils.success({ deletedCount }, 'Deleted successfully', 200);
+                return ResponseUtil.success({ deletedCount }, 'Deleted successfully', 200);
             }
             default:
                 this.logger.warn(`DELETE action '${action}' not implemented`);
