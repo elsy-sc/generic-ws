@@ -112,16 +112,18 @@ export class GenController {
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            
-            // Utiliser notre nouvelle méthode qui gère automatiquement les setters
+            const tableNameFinal = tableName || instance.getTableName();
+
+            this.logger.debug(`Creating ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
+
             GenModel.setPropertyValues(instance, data);
-            GenModel.setPropertyValues(instance, { tablename: tableName });
-            
+            GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
+
             const hasInstanceCreate = typeof instance.create === 'function';
             if (hasInstanceCreate) {
                 return await instance.create();
             } else {
-                return await GenModel.create(instance, tableName);
+                return await GenModel.create(instance, tableNameFinal);
             }
         } catch (error) {
             this.logger.error(`Failed to create ${className}: ${error.message}`);
