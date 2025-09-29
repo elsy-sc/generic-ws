@@ -136,20 +136,27 @@ export class GenModel {
             throw new BadRequestException('No properties to update');
         }
 
-        if (!conditions || Object.keys(conditions).length === 0) {
+        if (!conditions || Object.keys(conditions).length === 0 && !afterWhere) {
             throw new BadRequestException('No conditions provided for update');
         }
 
         const setClause = Object.keys(propertiesToUpdate)
             .map((key, index) => `${key} = $${index + 1}`)
             .join(', ');
-        const whereClause = Object.keys(conditions)
-            .map((key, index) => `${key} = $${index + 1 + Object.keys(propertiesToUpdate).length}`)
-            .join(' AND ');
-
+        const keys = Object.keys(conditions);
         const values = [...Object.values(propertiesToUpdate), ...Object.values(conditions)];
 
-        const query = `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}${afterWhere ? ' AND ' + afterWhere : ''} RETURNING *`;
+        let query = `UPDATE ${tableName} SET ${setClause}`;
+        if (keys.length > 0) {
+            const whereConditions = keys.map((key, index) => `${key} = $${index + 1 + Object.keys(propertiesToUpdate).length}`).join(' AND ');
+            query += ` WHERE ${whereConditions}`;
+            if (afterWhere) {
+                query += ` AND ${afterWhere}`;
+            }
+        } else if (afterWhere) {
+            query += ` WHERE ${afterWhere}`;
+        }
+        query += ' RETURNING *';
         const result = await queryExecutor.query(query, values);
         return GenUtil.toModelPropertiesCase(objectToUpdate, result.rows)[0];
     }
@@ -163,7 +170,7 @@ export class GenModel {
         const keys = Object.keys(properties);
         const values = Object.values(properties);
 
-        if (keys.length === 0) {
+        if (keys.length === 0 && !afterWhere) {
             throw new BadRequestException('At least one property is required for delete action');
         }
 
