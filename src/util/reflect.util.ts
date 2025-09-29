@@ -2,7 +2,6 @@ import { StringUtil } from "./string.util";
 import { BadRequestException } from '@nestjs/common';
 
 export class ReflectUtil {
-
     static getPropertyNames(instance: any): string[] {
         const props: string[] = [];
         let obj = instance;

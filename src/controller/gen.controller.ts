@@ -5,18 +5,20 @@ import { ResponseUtil } from 'src/util/response.util';
 import { PaginationQuery } from 'src/interface/pagination.interface';
 import { GenericRequest } from 'src/interface/request.interface';
 import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('api/gen')
 @UseGuards(JwtAuthGuard)
 export class GenController {
     private readonly logger = new Logger(GenController.name);
 
+    @ApiQuery({ name: 'tableName', required: false, type: String })
     @Post()
     async postAction(
         @Query('action') action: string,
         @Query('className') className: string,
-        @Query('tableName') tableName: string,
         @Body() body: GenericRequest,
+        @Query('tableName') tableName?: string,
         @Query('page') page?: number | string,
         @Query('limit') limit?: number | string
     ): Promise<any> {
@@ -25,7 +27,7 @@ export class GenController {
         switch (action?.toLowerCase()) {
             case 'create':
                 this.logger.log(`Creating new ${className} record`);
-                const createResult = await this.handleCreate(className, tableName, body.data);
+                const createResult = await this.handleCreate(className, body.data, tableName);
                 this.logger.log(`Successfully created ${className} record`);
                 return ResponseUtil.success(createResult, 'Created successfully', 201);
             case 'read': {
@@ -35,7 +37,7 @@ export class GenController {
                 const parsedLimit = limit !== undefined ? Number(limit) : undefined;
                 
                 this.logger.log(`Reading ${className} records with pagination - Page: ${parsedPage}, Limit: ${parsedLimit}`);
-                const readResult = await this.handleRead(className, tableName, data, afterWhere, { page: parsedPage, limit: parsedLimit });
+                const readResult = await this.handleRead(className, data, tableName, afterWhere, { page: parsedPage, limit: parsedLimit });
                 this.logger.log(`Successfully read ${readResult.results.length} ${className} records`);
                 
                 return ResponseUtil.success(
@@ -56,19 +58,20 @@ export class GenController {
         throw new BadRequestException('GET: action not implemented');
     }
 
+    @ApiQuery({ name: 'tableName', required: false, type: String })
     @Put()
     async putAction(
         @Query('action') action: string,
         @Query('className') className: string,
-        @Query('tableName') tableName: string,
-        @Body() body: GenericRequest
+        @Body() body: GenericRequest,
+        @Query('tableName') tableName?: string
     ): Promise<any> {
         this.logger.log(`PUT /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
         
         switch (action?.toLowerCase()) {
             case 'update':
                 this.logger.log(`Updating ${className} records`);
-                const updateResult = await this.handleUpdate(className, tableName, body.objectToUpdate, body.objectToUpdateWith, body.afterWhere);
+                const updateResult = await this.handleUpdate(className, body.objectToUpdate, body.objectToUpdateWith, tableName, body.afterWhere);
                 this.logger.log(`Successfully updated ${className} records`);
                 return ResponseUtil.success(
                     updateResult,
@@ -81,19 +84,20 @@ export class GenController {
         }
     }
 
+    @ApiQuery({ name: 'tableName', required: false, type: String })
     @Delete()
     async deleteAction(
         @Query('action') action: string,
         @Query('className') className: string,
-        @Query('tableName') tableName: string,
-        @Body() body: GenericRequest
+        @Body() body: GenericRequest,
+        @Query('tableName') tableName?: string,
     ): Promise<any> {
         this.logger.log(`DELETE /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
         
         switch (action?.toLowerCase()) {
             case 'delete': {
                 this.logger.log(`Deleting ${className} records`);
-                const deletedCount = await this.handleDelete(className, tableName, body.data, body.afterWhere);
+                const deletedCount = await this.handleDelete(className, body.data, tableName, body.afterWhere);
                 this.logger.log(`Successfully deleted ${deletedCount} ${className} records`);
                 return ResponseUtil.success({ deletedCount }, 'Deleted successfully', 200);
             }
@@ -103,7 +107,7 @@ export class GenController {
         }
     }
 
-    private async handleCreate(className: string, tableName: string, data: any): Promise<any> {
+    private async handleCreate(className: string, data: any, tableName?: string): Promise<any> {
         if (!data) {
             this.logger.error(`Create failed for ${className}: Data is required`);
             throw new BadRequestException('Data is required for create action');
@@ -133,8 +137,8 @@ export class GenController {
 
     private async handleRead(
         className: string,
-        tableName: string,
         data: any,
+        tableName?: string,
         afterWhere?: string,
         pagination?: PaginationQuery
     ): Promise<any> {
@@ -197,7 +201,7 @@ export class GenController {
         }
     }
 
-    private async handleUpdate(className: string, tableName: string, objectToUpdate: any, objectToUpdateWith: any, afterWhere?: string): Promise<any> {
+    private async handleUpdate(className: string, objectToUpdate: any, objectToUpdateWith: any,tableName?: string, afterWhere?: string): Promise<any> {
         if ((!objectToUpdate || !objectToUpdateWith) && !afterWhere) {
             this.logger.error(`Update failed for ${className}: Missing required objects`);
             throw new BadRequestException('objectToUpdate and objectToUpdateWith are required for update action');
@@ -232,7 +236,7 @@ export class GenController {
         }
     }
 
-    private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<number> {
+    private async handleDelete(className: string, data: any, tableName?: string, afterWhere?: string): Promise<number> {
         if ((!data || Object.keys(data).length === 0) && !afterWhere) {
             this.logger.error(`Delete failed for ${className}: At least one property is required`);
             throw new BadRequestException('At least one property is required for delete action');

@@ -9,6 +9,7 @@ import { BootstrapUtil } from './util/bootstrap.util';
 import { DEFAULT_APP_PORT } from './util/constante.util';
 import { CorsUtil } from './util/cors.util';
 import { registerRouteAliases } from './middleware/alias.middleware';
+import { DocsUtil } from './util/docs.util';
 const { version } = require('@nestjs/core/package.json');
 
 async function bootstrap() {
@@ -22,6 +23,8 @@ async function bootstrap() {
   CorsUtil.enableCors(app);
 
   await registerRouteAliases(app);
+
+  DocsUtil.setupSwagger(app, version);
 
   const port = process.env.PORT ? process.env.PORT : DEFAULT_APP_PORT;
   await app.listen(port, '0.0.0.0');
