@@ -112,16 +112,18 @@ export class GenController {
         try {
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
-            
-            // Utiliser notre nouvelle méthode qui gère automatiquement les setters
+            const tableNameFinal = tableName || instance.tableName;
+
+            this.logger.debug(`Creating ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
+
             GenModel.setPropertyValues(instance, data);
-            GenModel.setPropertyValues(instance, { tablename: tableName });
-            
+            GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
+
             const hasInstanceCreate = typeof instance.create === 'function';
             if (hasInstanceCreate) {
                 return await instance.create();
             } else {
-                return await GenModel.create(instance, tableName);
+                return await GenModel.create(instance, tableNameFinal);
             }
         } catch (error) {
             this.logger.error(`Failed to create ${className}: ${error.message}`);
@@ -137,12 +139,14 @@ export class GenController {
         pagination?: PaginationQuery
     ): Promise<any> {
         try {
-            this.logger.debug(`Reading ${className} from ${tableName} with data: ${JSON.stringify(data)}`);
-            
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
+            const tableNameFinal = tableName || instance.tableName;
+
+            this.logger.debug(`Reading ${className} from ${tableNameFinal} with data: ${JSON.stringify(data)}`);
+
             GenModel.setPropertyValues(instance, data);
-            GenModel.setPropertyValues(instance, { tablename: tableName });
+            GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
 
             let results: any[];
             let total = 0;
@@ -156,14 +160,14 @@ export class GenController {
                 limit = Number(pagination.limit);
                 page = pagination.page && Number(pagination.page) > 0 ? Number(pagination.page) : 1;
                 const offset = (page - 1) * limit;
-                
+
                 this.logger.debug(`Paginated read - Page: ${page}, Limit: ${limit}, Offset: ${offset}`);
-                
-                total = await GenModel.count(instance, tableName, afterWhere);
+
+                total = await GenModel.count(instance, tableNameFinal, afterWhere);
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere, undefined, limit, offset);
                 } else {
-                    results = await GenModel.read(instance, tableName, afterWhere, undefined, limit, offset);
+                    results = await GenModel.read(instance, tableNameFinal, afterWhere, undefined, limit, offset);
                 }
                 totalPages = Math.ceil(total / limit);
             } else {
@@ -171,7 +175,7 @@ export class GenController {
                 if (hasInstanceRead) {
                     results = await instance.read(afterWhere);
                 } else {
-                    results = await GenModel.read(instance, tableName, afterWhere);
+                    results = await GenModel.read(instance, tableNameFinal, afterWhere);
                 }
                 total = results.length;
             }
@@ -194,19 +198,20 @@ export class GenController {
     }
 
     private async handleUpdate(className: string, tableName: string, objectToUpdate: any, objectToUpdateWith: any, afterWhere?: string): Promise<any> {
-        if (!objectToUpdate || !objectToUpdateWith) {
+        if ((!objectToUpdate || !objectToUpdateWith) && !afterWhere) {
             this.logger.error(`Update failed for ${className}: Missing required objects`);
             throw new BadRequestException('objectToUpdate and objectToUpdateWith are required for update action');
         }
 
         try {
             this.logger.debug(`Updating ${className} - Condition: ${JSON.stringify(objectToUpdate)}, Update: ${JSON.stringify(objectToUpdateWith)}`);
-            
+
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
-            
             const conditionInstance = new ClassConstructor();
+            const tableNameFinal = tableName || conditionInstance.tableName;
+
             GenModel.setPropertyValues(conditionInstance, objectToUpdate);
-            GenModel.setPropertyValues(conditionInstance, { tablename: tableName });
+            GenModel.setPropertyValues(conditionInstance, { tablename: tableNameFinal });
 
             const updateInstance = new ClassConstructor();
             GenModel.setPropertyValues(updateInstance, objectToUpdateWith);
@@ -216,9 +221,9 @@ export class GenController {
             if (hasInstanceUpdate) {
                 result = await conditionInstance.update(updateInstance, afterWhere);
             } else {
-                result = await GenModel.update(conditionInstance, updateInstance, tableName, afterWhere);
+                result = await GenModel.update(conditionInstance, updateInstance, tableNameFinal, afterWhere);
             }
-            
+
             this.logger.debug(`Update completed for ${className}`);
             return result;
         } catch (error) {
@@ -228,27 +233,29 @@ export class GenController {
     }
 
     private async handleDelete(className: string, tableName: string, data: any, afterWhere?: string): Promise<number> {
-        if (!data || Object.keys(data).length === 0) {
+        if ((!data || Object.keys(data).length === 0) && !afterWhere) {
             this.logger.error(`Delete failed for ${className}: At least one property is required`);
             throw new BadRequestException('At least one property is required for delete action');
         }
-        
+
         try {
             this.logger.debug(`Deleting ${className} with conditions: ${JSON.stringify(data)}`);
-            
+
             const ClassConstructor = await ReflectUtil.getClass(`${className}`);
             const instance = new ClassConstructor();
+            const tableNameFinal = tableName || instance.tableName;
+
             GenModel.setPropertyValues(instance, data);
-            GenModel.setPropertyValues(instance, { tablename: tableName });
+            GenModel.setPropertyValues(instance, { tablename: tableNameFinal });
 
             const hasInstanceDelete = typeof instance.delete === 'function';
             let deletedCount;
             if (hasInstanceDelete) {
                 deletedCount = await instance.delete(afterWhere);
             } else {
-                deletedCount = await GenModel.delete(instance, tableName, afterWhere);
+                deletedCount = await GenModel.delete(instance, tableNameFinal, afterWhere);
             }
-            
+
             this.logger.debug(`Delete completed for ${className} - ${deletedCount} records affected`);
             return deletedCount;
         } catch (error) {
