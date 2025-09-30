@@ -1,7 +1,8 @@
 
 // JWT constants
 export const DEFAULT_JWT_SECRET = 'secretKey';
-export const DEFAULT_JWT_EXPIRATION = '1h';
+export const DEFAULT_JWT_ACCESS_TOKEN_EXPIRATION='15m';
+export const DEFAULT_JWT_REFRESH_TOKEN_EXPIRATION='7d';
 
 // Database constants
 export const DEFAULT_DB_HOST = 'localhost';

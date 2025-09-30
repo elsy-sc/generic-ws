@@ -1,12 +1,12 @@
 import { Controller, Get, Query, UseGuards, Logger } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/annotation/jwtAuth.annotation';
+import { AuthGuard } from 'src/annotation/auth.annotation';
 import { ReflectUtil } from 'src/util/reflect.util';
 import { ResponseUtil } from 'src/util/response.util';
 import { TableUtil } from 'src/util/table.util';
 
 @Controller('api/meta')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard)
 export class MetaController {
     private readonly logger = new Logger(MetaController.name);
     
