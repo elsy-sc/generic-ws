@@ -5,7 +5,7 @@ import { MetaController } from './controller/meta.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { DEFAULT_JWT_SECRET } from './util/constante.util';
 import { AuthController } from './controller/auth.controller';
-import { UserController } from './controller/user.controller';
+import { TokenController } from './controller/token.controller';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { UserController } from './controller/user.controller';
       secret: process.env.JWT_SECRET || DEFAULT_JWT_SECRET,
     }),
   ],
-  controllers: [GenController, MetaController, AuthController, UserController],
+  controllers: [GenController, MetaController, AuthController, TokenController],
   providers: [],
 })
 export class AppModule {}

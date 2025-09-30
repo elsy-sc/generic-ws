@@ -1,7 +1,7 @@
 import { DatabaseUtil } from "src/util/database.util";
 import { ReflectUtil } from "src/util/reflect.util";
 import { getSequenceName, getSequencePrefix } from "src/annotation/sequence.annotation";
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { GenUtil } from "src/util/gen.util";
 
 export class GenModel {
