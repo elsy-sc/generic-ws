@@ -3,7 +3,6 @@ import { GenModel } from "./gen.model";
 import { DEFAULT_JWT_REFRESH_TOKEN_EXPIRATION } from "src/util/constante.util";
 import { Sequence } from "src/annotation/sequence.annotation";
 import { Property } from "src/annotation/property.annotation";
-import { Logger } from "@nestjs/common";
 
 export class Token {
     @Sequence({ name: 'token_seq', prefix: 'TKN' })
@@ -53,7 +52,7 @@ export class Token {
             token.refreshToken = TokenUtil.generateRefreshToken(token.payload, jwtService);
         }
         if (!token.expirationDate) {
-            token.expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            token.expirationDate = new Date(Date.now() + TokenUtil.parseExpiration(process.env.JWT_REFRESH_TOKEN_EXPIRATION || DEFAULT_JWT_REFRESH_TOKEN_EXPIRATION));
         }
         let tokenCreated = await GenModel.create(token, Token.tableName, client);
         let accessToken = TokenUtil.generateAccessToken(token.payload, jwtService);
