@@ -13,9 +13,7 @@ export class DocsUtil {
                 '- Pagination support\n' +
                 '- Route aliasing\n\n' +
                 'Endpoints:\n' +
-                '- /api/gen: Dynamic CRUD for any table/model\n' +
-                '- /api/meta: Metadata and field info\n' +
-                '- /api/auth: JWT token generation\n'
+                '- /api/gen: Dynamic CRUD for any table/model\n'
             )
 			.setVersion(version)
 			.addBearerAuth()
