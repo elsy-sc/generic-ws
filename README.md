@@ -64,13 +64,16 @@ Modify `src/util/routeAlias.util.ts` to create URL shortcuts:
 export const ROUTES = {
     'POST /api/gen?className=model/token.model&action=read&tableName=token': [
         "/tokens",
-        "/alias/tokens/list"
+        "/list-tokens"  // Good: no conflict
     ],
-    'GET /api/meta/fields?className=model/token.model&tableName=token': [
-        "/fields",
-    ],
+    'POST /api/gen?className=model/user.model&action=read&tableName=users': [
+        "/users",
+        "/api/users/list"
+    ]
 };
 ```
+
+**⚠️ Important**: Avoid aliases that could conflict with existing endpoints. For example, don't use `/fields` as an alias if you have `/api/gen/fields` - this can cause routing conflicts and bugs.
 
 ## 🏃 Getting Started
 
@@ -89,9 +92,7 @@ The server starts on `http://localhost:8000` (or configured port).
 
 - **Swagger UI** : `http://localhost:8000/api/docs`
 - **Main Endpoints** :
-  - `/api/gen` : Generic CRUD
-  - `/api/meta` : Model metadata
-  - `/api/token` : JWT token management
+  - `/api/gen` : Generic CRUD operations
 
 ## 🔧 Project Structure
 
@@ -102,20 +103,16 @@ src/
 │   ├── property.annotation.ts  # @Property decorator
 │   └── sequence.annotation.ts  # @Sequence decorator for IDs
 ├── controller/          # API controllers
-│   ├── gen.controller.ts       # Generic CRUD
-│   ├── meta.controller.ts      # Model metadata
-│   └── token.controller.ts     # JWT management
+│   └── gen.controller.ts       # Generic CRUD
 ├── interface/           # TypeScript interfaces
 │   ├── pagination.interface.ts
-│   ├── request.interface.ts
-│   └── withdrawal.interface.ts
+│   └── request.interface.ts
 ├── middleware/          # Middlewares
 │   └── alias.middleware.ts     # Proxy for route aliases
 ├── model/              # Data models
 │   ├── gen.model.ts           # Generic base model
 │   ├── request.model.ts       # Request model
-│   ├── token.model.ts         # Token model with JWT
-│   └── withdrawal.model.ts    # Example model
+│   └── token.model.ts         # Token model with JWT
 ├── util/               # Utilities
 │   ├── bootstrap.util.ts      # Startup display
 │   ├── constante.util.ts      # Constants
@@ -129,9 +126,7 @@ src/
 │   ├── response.util.ts       # Response formatting
 │   ├── routeAlias.util.ts     # Alias configuration
 │   ├── string.util.ts         # String manipulation
-│   ├── table.util.ts          # Table metadata
-│   ├── token.util.ts          # JWT management
-│   └── withdrawal.util.ts     # Withdrawal algorithms
+│   └── token.util.ts          # JWT management
 ├── app.module.ts        # Main NestJS module
 └── main.ts             # Application entry point
 ```
@@ -140,47 +135,30 @@ src/
 
 ### 🔐 Authentication
 
-All `/api/gen` and `/api/meta` endpoints require a JWT token in the header:
+All `/api/gen` endpoints require a JWT token in the header:
 
 ```bash
 Authorization: Bearer <your_token>
 ```
 
-### 1. JWT Token Management
+**Note**: Token management is handled through the `Token` model using the generic CRUD endpoints. There is no dedicated token controller - use `/api/gen` with `className=model/token.model` and `tableName=token`.
 
-#### Create a token
+**Example - Create a token:**
 ```bash
-POST /api/token/save
+POST /api/gen?action=create&className=model/token.model&tableName=token
+Authorization: Bearer <existing_token>
 Content-Type: application/json
 
 {
-  "userId": 123,
-  "email": "user@example.com"
+  "data": {
+    "payload": {"userId": 123, "email": "user@example.com"},
+    "refreshToken": "generated_refresh_token",
+    "expirationDate": "2024-12-31T23:59:59Z"
+  }
 }
 ```
 
-#### Verify a token
-```bash
-POST /api/token/verify
-Content-Type: application/json
-
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Refresh a token
-```bash
-POST /api/token/refresh
-Content-Type: application/json
-
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "payload": {"userId": 123}
-}
-```
-
-### 2. Generic CRUD
+### Generic CRUD Operations
 
 #### Create a record
 ```bash
@@ -235,13 +213,7 @@ Content-Type: application/json
 }
 ```
 
-### 3. Metadata
 
-#### Get model fields
-```bash
-GET /api/meta/fields?className=model/users.model&tableName=users
-Authorization: Bearer <token>
-```
 
 ## 🏗️ Creating a New Model
 
@@ -304,6 +276,7 @@ The model will be automatically usable via the generic API:
 
 ```bash
 POST /api/gen?action=create&className=model/user.model&tableName=users
+Authorization: Bearer <token>
 ```
 
 ## 🔄 Alias System
@@ -317,10 +290,14 @@ export const ROUTES = {
     'POST /api/gen?className=model/user.model&action=read&tableName=users': [
         "/users"
     ],
-    // Multiple aliases possible
-    'GET /api/meta/fields?className=model/user.model&tableName=users': [
-        "/user-fields",
-        "/api/user/metadata"
+    // Multiple aliases possible - avoid conflicts!
+    'PUT /api/gen?className=model/user.model&action=update&tableName=users': [
+        "/users/update",
+        "/modify-users"  // Safe: no endpoint collision
+    ],
+    // Token management examples
+    'POST /api/gen?className=model/token.model&action=create&tableName=token': [
+        "/create-token"
     ]
 };
 ```
@@ -357,8 +334,7 @@ Use `GenModel.executeReturnedQuery()` for custom SQL queries.
 ### Validation
 Add custom validations in your models by overriding CRUD methods.
 
-### Withdrawal Optimization
-The system includes optimized algorithms to calculate optimal withdrawals (see `withdrawal.util.ts`).
+
 
 ---
 
