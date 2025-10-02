@@ -1,24 +1,15 @@
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DEFAULT_DOCS_DESCRIPTION, DEFAULT_DOCS_PATH, DEFAULT_DOCS_TITLE, DEFAULT_DOCS_VERSION } from './constante.util';
 
 export class DocsUtil {
-	static setupSwagger(app: any, version: string) {
+	static setupSwagger(app: any) {
 		const config = new DocumentBuilder()
-			.setTitle('Generic Web Service Documentation')
-			.setDescription(
-                'A NestJS-based web service providing dynamic CRUD operations for any model and table using reflection and metadata.\n' +
-                'Features:\n' +
-                '- JWT authentication\n' +
-                '- PostgreSQL integration\n' +
-                '- Automatic property mapping via decorators\n' +
-                '- Pagination support\n' +
-                '- Route aliasing\n\n' +
-                'Endpoints:\n' +
-                '- /api/gen: Dynamic CRUD for any table/model\n'
-            )
-			.setVersion(version)
-			.addBearerAuth()
-			.build();
+			.setTitle(process.env.DOCS_TITLE || DEFAULT_DOCS_TITLE)
+			.setDescription(process.env.DOCS_DESCRIPTION || DEFAULT_DOCS_DESCRIPTION)
+			.setVersion(process.env.DOCS_VERSION || DEFAULT_DOCS_VERSION)
+            .addBearerAuth()
+            .build();
 		const document = SwaggerModule.createDocument(app, config);
-		SwaggerModule.setup('api/docs', app, document);
+		SwaggerModule.setup(process.env.DOCS_PATH || DEFAULT_DOCS_PATH, app, document);
 	}
 }
