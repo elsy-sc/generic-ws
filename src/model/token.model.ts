@@ -15,7 +15,7 @@ export class Token {
 
     revokedDate?: Date | null;
 
-    private static tableName = "token";
+    static tableName = "token";
 
     constructor(payload?: Object, refreshToken?: string, expirationDate?: Date) {
         this.payload = payload;
