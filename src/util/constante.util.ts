@@ -25,3 +25,6 @@ export const DEFAULT_DOCS_TITLE = 'Generic Web Service Documentation';
 export const DEFAULT_DOCS_DESCRIPTION = 'A NestJS-based web service providing dynamic CRUD operations';
 export const DEFAULT_DOCS_PATH = 'api/docs';
 export const DEFAULT_DOCS_VERSION = '1.0';
+
+// Gen Controller constants
+export const DEFAULT_GEN_CONTROLLER_PATH = 'api/gen';
