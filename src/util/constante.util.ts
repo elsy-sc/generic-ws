@@ -19,3 +19,9 @@ export const DEFAULT_UPSTREAM_URL = 'http://localhost:8000';
 
 // Bcrypt constants
 export const DEFAULT_BCRYPT_SALT_ROUNDS = 10;
+
+// Docs constants
+export const DEFAULT_DOCS_TITLE = 'Generic Web Service Documentation';
+export const DEFAULT_DOCS_DESCRIPTION = 'A NestJS-based web service providing dynamic CRUD operations';
+export const DEFAULT_DOCS_PATH = 'api/docs';
+export const DEFAULT_DOCS_VERSION = '1.0';
