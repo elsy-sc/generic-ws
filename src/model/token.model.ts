@@ -2,23 +2,17 @@ import { TokenUtil } from "src/util/token.util";
 import { GenModel } from "./gen.model";
 import { DEFAULT_JWT_REFRESH_TOKEN_EXPIRATION } from "src/util/constante.util";
 import { Sequence } from "src/annotation/sequence.annotation";
-import { Property } from "src/annotation/property.annotation";
 
 export class Token {
     @Sequence({ name: 'token_seq', prefix: 'TKN' })
-    @Property()
     id: string;
     
-    @Property()
     payload?: Object;
     
-    @Property()
     refreshToken?: string;
 
-    @Property()
     expirationDate?: Date;
 
-    @Property()
     revokedDate?: Date | null;
 
     private static tableName = "token";
@@ -34,7 +28,6 @@ export class Token {
         return await Token.save(this, jwtService, client);
     }
 
-    // verify the refreshToken stored in this instance
     async verify(jwtService: any, client?: any): Promise<any> {
         return await Token.verify(this.refreshToken, jwtService, client);
     }
@@ -59,7 +52,6 @@ export class Token {
         return { ...tokenCreated, accessToken };
     }
 
-    // verify the refreshToken stored in this instance
     static async verify(refreshToken: string | undefined, jwtService: any, client?: any): Promise<any> {
         if (!refreshToken) {
             return null;

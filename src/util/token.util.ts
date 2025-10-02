@@ -1,9 +1,9 @@
 import { JwtService } from "@nestjs/jwt";
-import { DEFAULT_JWT_SECRET } from "./constante.util";
+import { DEFAULT_JWT_ACCESS_TOKEN_EXPIRATION, DEFAULT_JWT_REFRESH_TOKEN_EXPIRATION, DEFAULT_JWT_SECRET } from "./constante.util";
 import { UnauthorizedException } from '@nestjs/common';
 
 export class TokenUtil {
-    private static generateToken(payload: any, jwtService: JwtService, expiresIn: string): string {
+    static generateToken(payload: any, jwtService: JwtService, expiresIn: string = '-1'): string {
         if(expiresIn === '-1') {
             return jwtService.sign(payload);
         }
@@ -11,12 +11,12 @@ export class TokenUtil {
     }
 
     static generateAccessToken(payload: any, jwtService: JwtService): string {
-        const accessTokenExpiration = process.env.JWT_ACCESS_TOKEN_EXPIRATION || '15m';
+        const accessTokenExpiration = process.env.JWT_ACCESS_TOKEN_EXPIRATION || DEFAULT_JWT_ACCESS_TOKEN_EXPIRATION;
         return this.generateToken(payload, jwtService, accessTokenExpiration);
     }
 
     static generateRefreshToken(payload: any, jwtService: JwtService): string {
-        const refreshTokenExpiration = process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d';
+        const refreshTokenExpiration = process.env.JWT_REFRESH_TOKEN_EXPIRATION || DEFAULT_JWT_REFRESH_TOKEN_EXPIRATION;
         return this.generateToken(payload, jwtService, refreshTokenExpiration);
     }
 
