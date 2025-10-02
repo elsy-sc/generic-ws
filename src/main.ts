@@ -24,7 +24,7 @@ async function bootstrap() {
 
   await registerRouteAliases(app);
 
-  DocsUtil.setupSwagger(app, version);
+  DocsUtil.setupSwagger(app);
 
   const port = process.env.PORT ? process.env.PORT : DEFAULT_APP_PORT;
   await app.listen(port, '0.0.0.0');
