@@ -1,7 +1,7 @@
 import { DatabaseUtil } from "src/util/database.util";
 import { ReflectUtil } from "src/util/reflect.util";
 import { getSequenceName, getSequencePrefix } from "src/annotation/sequence.annotation";
-import { BadRequestException, Logger } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { GenUtil } from "src/util/gen.util";
 
 export class GenModel {
@@ -204,12 +204,10 @@ export class GenModel {
         return GenUtil.toModelPropertiesCase(instance, result.rows.map((row: Record<string, unknown>) => Object.assign(new ClassConstructor(), row)));
     }
 
-    // Method to set properties using automatic setters
     static setPropertyValues(instance: any, values: Record<string, any>): void {
         ReflectUtil.setPropertyValues(instance, values);
     }
 
-    // Instance method to set properties
     setPropertyValues(values: Record<string, any>): void {
         GenModel.setPropertyValues(this, values);
     }

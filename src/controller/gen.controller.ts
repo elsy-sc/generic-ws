@@ -6,8 +6,9 @@ import { PaginationQuery } from 'src/interface/pagination.interface';
 import { AuthGuard } from 'src/annotation/auth.annotation';
 import { ApiBearerAuth, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { GenericRequest as GenericRequestDto } from 'src/model/request.model';
+import { DEFAULT_GEN_CONTROLLER_PATH } from 'src/util/constante.util';
 
-@Controller('api/gen')
+@Controller(process.env.GEN_CONTROLLER_PATH || DEFAULT_GEN_CONTROLLER_PATH)
 @UseGuards(AuthGuard)
 export class GenController {
     private readonly logger = new Logger(GenController.name);
