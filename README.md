@@ -10,7 +10,7 @@ A generic web service built with NestJS and Fastify, providing dynamic CRUD oper
 - **Automatic Mapping** : Automatic property mapping via decorators
 - **Auto-incremented Sequences** : Automatic ID generation with custom prefixes
 - **Route Aliases** : Proxy system to create URL shortcuts
-- **Swagger/OpenAPI** : Automatic API documentation available at `/api/docs`
+- **Swagger/OpenAPI** : Automatic API documentation available at the configured path (default: `/api/docs`)
 - **PostgreSQL Transactions** : Transaction support for complex operations
 
 ## 📋 Prerequisites
@@ -95,13 +95,13 @@ npm run build
 npm run start:prod
 ```
 
-The server starts on `http://localhost:8000` (or configured port).
+The server starts on `http://localhost:${PORT}` (default: `http://localhost:8000`).
 
 ## 📚 API Documentation
 
-- **Swagger UI** : `http://localhost:8000/api/docs`
+- **Swagger UI** : `http://localhost:${PORT}/${DOCS_PATH}` (default: `http://localhost:8000/api/docs`)
 - **Main Endpoints** :
-  - `/api/gen` : Generic CRUD operations
+  - `${GEN_CONTROLLER_PATH}` : Generic CRUD operations (default: `/api/gen`)
 
 ## 🔧 Project Structure
 
@@ -141,6 +141,11 @@ src/
 
 ## 📖 API Usage
 
+**Note**: All endpoint paths in the examples below use the default configuration values. The actual paths depend on your environment variables:
+
+- `${GEN_CONTROLLER_PATH}` for generic CRUD operations (default: `/api/gen`)
+- `${DOCS_PATH}` for API documentation (default: `/api/docs`)
+
 ### 🔐 Authentication
 
 All `/api/gen` endpoints require a JWT token in the header:
@@ -152,6 +157,7 @@ Authorization: Bearer <your_token>
 **Note**: Token management is handled through the `Token` model using the generic CRUD endpoints. There is no dedicated token controller - use `/api/gen` with `className=model/token.model` and `tableName=token`.
 
 **Example - Create a token:**
+
 ```bash
 POST /api/gen?action=create&className=model/token.model&tableName=token
 Authorization: Bearer <existing_token>
