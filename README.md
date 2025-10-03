@@ -384,10 +384,9 @@ We welcome contributions! Please follow these guidelines:
 3. Install dependencies: `npm install`
 4. Create a feature branch: `git checkout -b feature/your-feature-name`
 5. Make your changes
-6. Run tests: `npm run test`
-7. Commit your changes: `git commit -m "Add your feature"`
-8. Push to your branch: `git push origin feature/your-feature-name`
-9. Create a Pull Request
+6. Commit your changes: `git commit -m "Add your feature"`
+7. Push to your branch: `git push origin feature/your-feature-name`
+8. Create a Pull Request
 
 ### Code Style
 
