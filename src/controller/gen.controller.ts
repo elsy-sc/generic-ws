@@ -12,6 +12,7 @@ import { DEFAULT_GEN_CONTROLLER_PATH } from 'src/util/constante.util';
 @UseGuards(AuthGuard)
 export class GenController {
     private readonly logger = new Logger(GenController.name);
+    private readonly path: string = process.env.GEN_CONTROLLER_PATH || DEFAULT_GEN_CONTROLLER_PATH;
 
     @ApiQuery({ name: 'action', required: true, type: String })
     @ApiQuery({ name: 'className', required: true, type: String })
@@ -29,7 +30,7 @@ export class GenController {
         @Query('page') page?: number | string,
         @Query('limit') limit?: number | string
     ): Promise<any> {
-        this.logger.log(`POST /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
+        this.logger.log(`POST ${this.path} - Action: ${action}, Class: ${className}, Table: ${tableName}`);
         
         switch (action?.toLowerCase()) {
             case 'create':
@@ -61,7 +62,7 @@ export class GenController {
 
     @Get()
     async getAction(): Promise<any> {
-        this.logger.warn('GET /api/gen - Action not implemented');
+        this.logger.warn(`GET ${this.path} - Action not implemented`);
         throw new BadRequestException('GET: action not implemented');
     }
 
@@ -77,7 +78,7 @@ export class GenController {
         @Body() body: GenericRequestDto,
         @Query('tableName') tableName?: string
     ): Promise<any> {
-        this.logger.log(`PUT /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
+        this.logger.log(`PUT ${this.path} - Action: ${action}, Class: ${className}, Table: ${tableName}`);
         
         switch (action?.toLowerCase()) {
             case 'update':
@@ -107,7 +108,7 @@ export class GenController {
         @Body() body: GenericRequestDto,
         @Query('tableName') tableName?: string,
     ): Promise<any> {
-        this.logger.log(`DELETE /api/gen - Action: ${action}, Class: ${className}, Table: ${tableName}`);
+        this.logger.log(`DELETE ${this.path} - Action: ${action}, Class: ${className}, Table: ${tableName}`);
         
         switch (action?.toLowerCase()) {
             case 'delete': {

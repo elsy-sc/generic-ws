@@ -392,8 +392,6 @@ We welcome contributions! Please follow these guidelines:
 
 - Use TypeScript for all new code
 - Follow the existing code style and naming conventions
-- Add JSDoc comments for public methods
-- Write tests for new features
 - Update documentation as needed
 
 ### Reporting Issues
