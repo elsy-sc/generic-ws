@@ -7,7 +7,7 @@ export class TokenUtil {
         if(expiresIn === '-1') {
             return jwtService.sign(payload);
         }
-        return jwtService.sign(payload, { expiresIn });
+        return jwtService.sign(payload, { expiresIn: expiresIn as any  });
     }
 
     static generateAccessToken(payload: any, jwtService: JwtService): string {
