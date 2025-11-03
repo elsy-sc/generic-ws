@@ -2,11 +2,14 @@ import { HttpException } from '@nestjs/common';
 
 export class ResponseUtil {
     static success(data: any, message = 'Success', statusCode = 200) {
-        return {
-            message,
-            data,
+        throw new HttpException(
+            {
+                message,
+                data,
+                statusCode
+            },
             statusCode
-        };
+        );
     }
 
     static error(errors: any, message = 'An error occurred', data: any = null, statusCode = 500) {
