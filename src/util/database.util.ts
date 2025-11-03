@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, types } from 'pg';
 import { DEFAULT_DB_HOST, DEFAULT_DB_PORT, DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASSWORD } from './constante.util';
 
 export class DatabaseUtil {
@@ -20,12 +20,19 @@ export class DatabaseUtil {
 
     static getPool(): Pool {
         if (!DatabaseUtil.pool) {
+            types.setTypeParser(1114, (str) => str); // timestamp without timezone
+            types.setTypeParser(1184, (str) => str); // timestamp with timezone
+            
             DatabaseUtil.pool = new Pool({
                 host: process.env.DB_HOST || DEFAULT_DB_HOST,
                 port: parseInt(process.env.DB_PORT || DEFAULT_DB_PORT.toString()),
                 database: process.env.DB_NAME || DEFAULT_DB_NAME,
                 user: process.env.DB_USER || DEFAULT_DB_USER,
                 password: process.env.DB_PASSWORD || DEFAULT_DB_PASSWORD,
+            });
+
+            DatabaseUtil.pool.on('connect', (client) => {
+                client.query("SET timezone = 'Africa/Nairobi'"); // ou 'EAT' ou '+03'
             });
         }
         return DatabaseUtil.pool;
