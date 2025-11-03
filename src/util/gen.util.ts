@@ -15,4 +15,14 @@ export class GenUtil{
             return mapped;
         });
     }
+    
+    static getAfterWhereClause(afterWhere: string | undefined, other: string | undefined): string {
+        const after = afterWhere?.trim() || '';
+        const otherClause = other?.trim() || '';
+        
+        if (after && otherClause) {
+            return `${after} AND ${otherClause}`;
+        }
+        return after || otherClause;
+    }
 }
