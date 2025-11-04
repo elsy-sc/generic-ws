@@ -20,8 +20,10 @@ export class DatabaseUtil {
 
     static getPool(): Pool {
         if (!DatabaseUtil.pool) {
-            types.setTypeParser(1114, (str) => str); // timestamp without timezone
-            types.setTypeParser(1184, (str) => str); // timestamp with timezone
+            // Parse timestamps as Date objects (UTC) instead of strings
+            // This ensures consistent timezone handling regardless of server/client location
+            types.setTypeParser(1114, (str) => new Date(str + 'Z')); // timestamp without timezone -> treat as UTC
+            types.setTypeParser(1184, (str) => new Date(str)); // timestamp with timezone
             
             DatabaseUtil.pool = new Pool({
                 host: process.env.DB_HOST || DEFAULT_DB_HOST,
@@ -31,8 +33,10 @@ export class DatabaseUtil {
                 password: process.env.DB_PASSWORD || DEFAULT_DB_PASSWORD,
             });
 
+            // Force UTC timezone for all database connections
+            // This ensures consistent behavior regardless of server location
             DatabaseUtil.pool.on('connect', (client) => {
-                client.query("SET timezone = 'Africa/Nairobi'"); // ou 'EAT' ou '+03'
+                client.query("SET timezone = 'UTC'");
             });
         }
         return DatabaseUtil.pool;
