@@ -1,7 +1,7 @@
 import { HttpException } from '@nestjs/common';
 
 export class ResponseUtil {
-    static success(data: any, message = 'Success', statusCode = 200) {
+    private static respond(message: string, data: any, statusCode: number) {
         throw new HttpException(
             {
                 message,
@@ -12,20 +12,11 @@ export class ResponseUtil {
         );
     }
 
-    static error(errors: any, message = 'An error occurred', data: any = null, statusCode = 500) {
-        let errorValue = errors;
-        if (Array.isArray(errors)) {
-            errorValue = errors.length > 0 ? errors[0] : null;
-        }
+    static success(data: any, message = 'Success', statusCode = 200) {
+        this.respond(message, data, statusCode);
+    }
 
-        throw new HttpException(
-            {
-                error: message,
-                message: errorValue,
-                data,
-                statusCode
-            },
-            statusCode
-        );
+    static error(data: any = null, message = 'An error occurred', statusCode = 500) {
+        this.respond(message, data, statusCode);
     }
 }
