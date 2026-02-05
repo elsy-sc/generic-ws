@@ -1,4 +1,21 @@
+
 # Generic Web Service (generic-ws)
+
+A generic, dynamic web service for CRUD operations on any PostgreSQL model/table, built with NestJS and Fastify. Designed for extensibility, rapid prototyping, and easy collaboration.
+
+---
+
+## 🤝 Want to Collaborate?
+
+This project welcomes contributors! To help you get started, please ensure the following are available in this repository:
+
+- **Repository description** (see above)
+- **README.md** (this file) with detailed project info
+- **LICENSE** file (MIT License)
+- **At least one open issue** for new collaborators ([see issues](../../issues))
+- **CONTRIBUTING.md** with guidelines for contributing
+
+If you have questions or suggestions, open an issue or a pull request. Happy coding!
 
 A generic web service built with NestJS and Fastify, providing dynamic CRUD operations for any model and table using reflection and metadata.
 
